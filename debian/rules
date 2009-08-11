@@ -83,9 +83,6 @@ binary-arch: debclean
 
 binary: binary-indep binary-arch
 
-source diff:
-	@echo >&2 'source and diff are obsolete - use dpkg-source -b' or dsc; false
-
 dsc:
 	-test -d debian/tmp && $(MAKE) -f debian/rules clean
 	if [ ! -f ../$(source)_$(version).orig.tar.gz -a -f ../orig/$(source)_$(version).orig.tar.gz ]; \
