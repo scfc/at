@@ -77,6 +77,8 @@ binary-arch: debclean
 	mv debian/at/etc/init.d/rc \
 		debian/at/etc/init.d/atd
 	chmod a+x debian/at/etc/init.d/atd
+	# Needed to keep in line with the previous upload:
+	chown root:daemon debian/at/etc/at.deny
 	dh_compress
 	dh_installdeb
 	dh_shlibdeps
