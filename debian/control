@@ -5,6 +5,8 @@ Maintainer: Ansgar Burchardt <ansgar@43-1.org>
 Uploaders: Cyril Brulebois <kibi@debian.org>
 Standards-Version: 3.6.2
 Build-Depends: debhelper (>= 7), bison, flex, libpam0g-dev, ssmtp | mail-transport-agent
+Vcs-Browser: http://git.debian.org/?p=collab-maint/at.git
+Vcs-Git: git://git.debian.org/git/collab-maint/at.git
 
 Package: at
 Architecture: any
