@@ -16,7 +16,7 @@
 #   Foundation Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
 
 build:
-	-test -f config.cache || PATH=/usr/sbin:$${PATH} ./configure --prefix=/usr \
+	./configure --prefix=/usr \
 		--with-loadavg_mx=1.5 \
 		--with-jobdir=/var/spool/cron/atjobs \
 		--with-atspool=/var/spool/cron/atspool
