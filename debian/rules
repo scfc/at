@@ -30,6 +30,7 @@ clean: debclean
 	rm -f stamp-build
 	-$(MAKE) distclean
 	rm -rf *~ TAGS tags
+	dh_clean
 
 debclean:
 # Cleans debian binary directories to allow binary creation
