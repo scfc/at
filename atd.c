@@ -99,7 +99,6 @@ gid_t daemon_gid = (gid_t) - 3;
 /* File scope variables */
 
 static char *namep;
-static const char *svnid = "$Id$";
 static double load_avg = LOADAVG_MX;
 static time_t now;
 static time_t last_chg;

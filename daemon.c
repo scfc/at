@@ -48,8 +48,6 @@
 #include "daemon.h"
 #include "privs.h"
 
-static const char *svnid = "$Id$";
-
 int daemon_debug;
 
 static int

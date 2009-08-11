@@ -46,8 +46,6 @@
 
 /* File scope variables */
 
-static const char *svnid = "$Id$";
-
 /* External variables */
 
 /* Global functions */
