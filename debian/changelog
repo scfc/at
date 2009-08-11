@@ -134,6 +134,8 @@ at (3.1.8-10) frozen unstable; urgency=high
 
  -- Siggy Brentrup <bsb@winnegan.de>  Mon,  3 Apr 2000 13:56:47 +0200
 
+Old Changelog:
+
 at (3.1.8-9) frozen unstable; urgency=low, closes=53715 56047 56607 55560 55514
 
   * Added SIGCHLD handler to release zombies (closes 53715 56047 56607)
