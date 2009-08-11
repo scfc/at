@@ -103,13 +103,9 @@ dsc:
 	  rm ../$(source)_$(version).orig.tar.gz /tmp/stamp-$(source)-link; \
 	fi
 
-checkroot:
-	$(checkdir)
-	test root = "`whoami`"
-
 dist: binary dsc
 
-.PHONY: binary binary-arch binary-indep clean checkroot
+.PHONY: binary binary-arch binary-indep clean
 # Local variables:
 # mode: makefile
 # End:
