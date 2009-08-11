@@ -133,7 +133,10 @@ static void alarmc(int signo);
 static char *cwdname(void);
 static void writefile(time_t runtimer, char queue);
 static void list_jobs(void);
+#if 0
+/* Not used. */
 static time_t parsetimespec(const char *spec);
+#endif
 
 /* Signal catching functions */
 
@@ -707,6 +710,8 @@ process_jobs(int argc, char **argv, int what)
     return rc;
 }				/* delete_jobs */
 
+#if 0
+/* Not used. */
 static time_t parsetimespec(const char *spec)
 {
     int len = strlen(spec);
@@ -736,6 +741,7 @@ static time_t parsetimespec(const char *spec)
     else
 	return 0; /* corrupt */
 }
+#endif
 
 /* Global functions */
 
