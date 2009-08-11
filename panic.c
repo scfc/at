@@ -58,8 +58,11 @@ panic(char *a)
 /* Something fatal has happened, print error message and exit.
  */
     fprintf(stderr, "%s: %s\n", namep, a);
-    if (fcreated)
+    if (fcreated) {
+	setregid(real_gid, effective_gid);
 	unlink(atfile);
+	setregid(effective_gid, real_gid);
+    }
 
     exit(EXIT_FAILURE);
 }
