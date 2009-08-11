@@ -1,4 +1,4 @@
-#! /bin/sh -e
+#! /bin/sh
 ### BEGIN INIT INFO
 # Provides:          atd
 # Required-Start:    $syslog $time $remote_fs
@@ -12,7 +12,6 @@
 #
 # Author:	Ryan Murray <rmurray@debian.org>
 #
-set -e
 
 PATH=/bin:/usr/bin:/sbin:/usr/sbin
 DAEMON=/usr/sbin/atd
