@@ -682,8 +682,8 @@ main(int argc, char *argv[])
 {
 /* Browse through  ATJOB_DIR, checking all the jobfiles wether they should
  * be executed and or deleted. The queue is coded into the first byte of
- * the job filename, the date (in minutes since Eon) as a hex number in the
- * following eight bytes, followed by a dot and a serial number.  A file
+ * the job filename, the next 5 bytes encode the serial number in hex, and
+ * the final 8 bytes encode the date (minutes since Eon) in hex.  A file
  * which has not been executed yet is denoted by its execute - bit set.
  * For those files which are to be executed, run_file() is called, which forks
  * off a child which takes care of I/O redirection, forks off another child
