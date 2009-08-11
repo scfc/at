@@ -106,6 +106,3 @@ dsc:
 dist: binary dsc
 
 .PHONY: binary binary-arch binary-indep clean
-# Local variables:
-# mode: makefile
-# End:
