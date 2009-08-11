@@ -3,7 +3,7 @@ Section: admin
 Priority: important
 Maintainer: Ryan Murray <rmurray@debian.org>
 Standards-Version: 3.6.2
-Build-Depends: bison, flex, libpam0g-dev, ssmtp | mail-transport-agent
+Build-Depends: debhelper (>= 7), bison, flex, libpam0g-dev, ssmtp | mail-transport-agent
 
 Package: at
 Architecture: any
