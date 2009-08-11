@@ -11,7 +11,7 @@ build-stamp:
 	touch $@
 
 clean:
-	-$(MAKE) distclean
+	[ ! -f Makefile ] || $(MAKE) distclean
 	rm -rf *~ TAGS tags
 	dh_clean
 
