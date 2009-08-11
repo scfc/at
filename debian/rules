@@ -15,7 +15,8 @@
 #   along with this program;  if not, write to the Free Software
 #   Foundation Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA
 
-build:
+build: build-stamp
+build-stamp:
 	./configure --prefix=/usr \
 		--with-loadavg_mx=1.5 \
 		--with-jobdir=/var/spool/cron/atjobs \
@@ -24,10 +25,9 @@ build:
 		< config.h > config.h.new
 	mv -f config.h.new config.h
 	$(MAKE)
-	touch stamp-build
+	touch $@
 
 clean: debclean
-	rm -f stamp-build
 	-$(MAKE) distclean
 	rm -rf *~ TAGS tags
 	dh_clean
@@ -40,8 +40,7 @@ debclean:
 binary-indep:
 # Nothing to be done here
 
-binary-arch: debclean
-	test -f stamp-build || $(MAKE) -f debian/rules build
+binary-arch: build-stamp debclean
 	# Install docs:
 	dh_installchangelogs ChangeLog
 	dh_installdocs README
