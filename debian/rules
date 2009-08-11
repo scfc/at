@@ -51,17 +51,22 @@ binary-arch: debclean
 	# Install docs:
 	dh_installchangelogs ChangeLog
 	dh_installdocs README
-	$(MAKE) IROOT=`pwd`/debian/tmp mandir=/usr/share/man docdir=/usr/share/doc install
-	rm -f debian/tmp/usr/share/doc/at/{Copyright,ChangeLog,README}
-	rm -f debian/tmp/var/spool/cron/atjobs/.SEQ
-	chown daemon:daemon debian/tmp/var/spool/cron/atjobs debian/tmp/var/spool/cron/atspool
-	rm -f debian/tmp/usr/share/man/man1/{atq,atrm,batch}.1 debian/tmp/usr/share/man/man8/atrun.8
-	rm -f debian/tmp/usr/share/man/man5/at_deny.5 debian/tmp/usr/sbin/atrun
-	mv -f debian/tmp/usr/share/man/man5/at_allow.5 debian/tmp/usr/share/man/man5/at.allow.5
-	gzip -9 debian/tmp/usr/share/man/man?/*
-	(cd debian/tmp/usr/share/man/man1 && ln -s at.1.gz atq.1.gz && ln -s at.1.gz atrm.1.gz && ln -s at.1.gz batch.1.gz)
-	(cd debian/tmp/usr/share/man/man5 && ln -s at.allow.5.gz at.deny.5.gz)
-
+	# Install everything:
+	$(MAKE) IROOT=$(CURDIR)/debian/at mandir=/usr/share/man docdir=/usr/share/doc install
+	# Remove (duplicate) copyright:
+	rm debian/at/usr/share/doc/at/Copyright
+	# TODO: Take care of those:
+	rm -f debian/at/var/spool/cron/atjobs/.SEQ
+	chown daemon:daemon debian/at/var/spool/cron/atjobs debian/at/var/spool/cron/atspool
+	# Take care of the manpages:
+	dh_installman
+	mv debian/at/usr/share/man/man5/at_allow.5 \
+		debian/at/usr/share/man/man5/at.allow.5
+	rm debian/at/usr/share/man/man5/at_deny.5
+	ln -sf at.allow.5 \
+		debian/at/usr/share/man/man5/at.deny.5
+	# TODO: Why removing this manpage?
+	rm debian/at/usr/share/man/man8/atrun.8
 	# Install/rename pam config file:
 	dh_install pam.conf etc/pam.d
 	mv debian/at/etc/pam.d/pam.conf \
@@ -71,6 +76,7 @@ binary-arch: debclean
 	mv debian/at/etc/init.d/rc \
 		debian/at/etc/init.d/atd
 	chmod a+x debian/at/etc/init.d/atd
+	dh_compress
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
