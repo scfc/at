@@ -48,19 +48,9 @@ binary-indep:
 
 binary-arch: debclean
 	test -f stamp-build || $(MAKE) -f debian/rules build
-	$(installbin) -d debian/tmp/DEBIAN
-	chown -R root:root debian/tmp
-	chmod -R g-ws debian/tmp
-	$(installbin) -d debian/tmp/usr/share/doc/$(package)
-	$(installbin) debian/{postinst,postrm,prerm} debian/tmp/DEBIAN/
-	$(installdoc) debian/conffiles debian/tmp/DEBIAN/
-	$(installdoc) debian/changelog debian/tmp/usr/share/doc/$(package)/changelog.Debian
-	#
-	$(installdoc) ChangeLog debian/tmp/usr/share/doc/$(package)/changelog
-	$(installdoc) debian/copyright debian/tmp/usr/share/doc/$(package)/
-	$(installdoc) README debian/tmp/usr/share/doc/$(package)/readme.txt
-	gzip -9f debian/tmp/usr/share/doc/$(package)/{changelog{,.Debian},readme.txt}
-	#
+	# Install docs:
+	dh_installchangelogs ChangeLog
+	dh_installdocs README
 	$(MAKE) IROOT=`pwd`/debian/tmp mandir=/usr/share/man docdir=/usr/share/doc install
 	rm -f debian/tmp/usr/share/doc/at/{Copyright,ChangeLog,README}
 	rm -f debian/tmp/var/spool/cron/atjobs/.SEQ
