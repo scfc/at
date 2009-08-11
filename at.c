@@ -108,7 +108,6 @@ gid_t daemon_gid = (gid_t) - 3;
 
 /* File scope variables */
 
-static const char *svnid = "$Id$";
 char *no_export[] =
 {
     "TERM", "DISPLAY", "_", "SHELLOPTS", "BASH_VERSINFO", "EUID", "GROUPS", "PPID", "UID"
