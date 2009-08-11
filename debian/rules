@@ -83,18 +83,4 @@ binary-arch: debclean
 
 binary: binary-indep binary-arch
 
-dsc:
-	-test -d debian/tmp && $(MAKE) -f debian/rules clean
-	if [ ! -f ../$(source)_$(version).orig.tar.gz -a -f ../orig/$(source)_$(version).orig.tar.gz ]; \
-	then \
-	  ln -s orig/$(source)_$(version).orig.tar.gz ../$(source)_$(version).orig.tar.gz; \
-	  touch /tmp/stamp-$(source)-link; \
-	fi; \
-	cd .. && dpkg-source -b $(source)-$(version)
-	if [ -f /tmp/stamp-$(source)-link ]; then \
-	  rm ../$(source)_$(version).orig.tar.gz /tmp/stamp-$(source)-link; \
-	fi
-
-dist: binary dsc
-
 .PHONY: binary binary-arch binary-indep clean
