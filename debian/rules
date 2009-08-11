@@ -2,11 +2,11 @@
 
 build: build-stamp
 build-stamp:
+	SENDMAIL=/usr/sbin/sendmail \
 	./configure --prefix=/usr \
 		--with-loadavg_mx=1.5 \
 		--with-jobdir=/var/spool/cron/atjobs \
 		--with-atspool=/var/spool/cron/atspool
-	sed -i 's,/usr/lib/sendmail,/usr/sbin/sendmail,g' config.h
 	$(MAKE)
 	touch $@
 
