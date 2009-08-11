@@ -71,9 +71,16 @@ binary-arch: debclean
 	gzip -9 debian/tmp/usr/share/man/man?/*
 	(cd debian/tmp/usr/share/man/man1 && ln -s at.1.gz atq.1.gz && ln -s at.1.gz atrm.1.gz && ln -s at.1.gz batch.1.gz)
 	(cd debian/tmp/usr/share/man/man5 && ln -s at.allow.5.gz at.deny.5.gz)
-	$(installbin) -d debian/tmp/etc/init.d debian/tmp/etc/pam.d
-	$(installbin) debian/rc debian/tmp/etc/init.d/atd
-	$(installbin) debian/pam -m 644 debian/tmp/etc/pam.d/atd
+
+	# Install/rename pam config file:
+	dh_install pam.conf etc/pam.d
+	mv debian/at/etc/pam.d/pam.conf \
+		debian/at/etc/pam.d/atd
+	# Install/rename init script:
+	dh_install rc etc/init.d
+	mv debian/at/etc/init.d/rc \
+		debian/at/etc/init.d/atd
+	chmod a+x debian/at/etc/init.d/atd
 	dpkg-shlibdeps debian/tmp/usr/sbin/atd debian/tmp/usr/bin/at
 	dpkg-gencontrol -isp
 	dpkg --build debian/tmp ..
