@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "parsetime.h"
+#include "panic.h"
 
 #define YYDEBUG 1
 
