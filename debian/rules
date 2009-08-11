@@ -81,9 +81,11 @@ binary-arch: debclean
 	mv debian/at/etc/init.d/rc \
 		debian/at/etc/init.d/atd
 	chmod a+x debian/at/etc/init.d/atd
-	dpkg-shlibdeps debian/tmp/usr/sbin/atd debian/tmp/usr/bin/at
-	dpkg-gencontrol -isp
-	dpkg --build debian/tmp ..
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
 
 binary: binary-indep binary-arch
 
