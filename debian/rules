@@ -49,11 +49,6 @@ debclean:
 binary-indep:
 # Nothing to be done here
 
-#find debian/tmp/usr/share/doc debian/tmp/usr/share/man -type f | xargs gzip -9
-#find debian/tmp/usr/share/man -type l | xargs rm
-#cd debian/tmp/usr/share/man/man1 && ln -s at.1.gz batch.1.gz && ln -s at.1.gz atq.1.gz && ln -s at.1.gz atrm.1.gz
-#cd debian/tmp/usr/share/man/man5 && ln -s at_allow.5.gz at_deny.5.gz && rm -f at_deny.5
-
 binary-arch: debclean
 	test -f stamp-build || $(MAKE) -f debian/rules build
 	$(installbin) -d debian/tmp/DEBIAN
