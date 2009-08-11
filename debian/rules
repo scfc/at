@@ -27,20 +27,17 @@ build-stamp:
 	$(MAKE)
 	touch $@
 
-clean: debclean
+clean:
 	-$(MAKE) distclean
 	rm -rf *~ TAGS tags
 	dh_clean
 
-debclean:
-# Cleans debian binary directories to allow binary creation
-	rm -rf debian/tmp
-	rm -f debian/{files,substvars}
-
 binary-indep:
 # Nothing to be done here
 
-binary-arch: build-stamp debclean
+binary-arch: build-stamp
+	dh_testroot
+	dh_prep
 	# Install docs:
 	dh_installchangelogs ChangeLog
 	dh_installdocs README
