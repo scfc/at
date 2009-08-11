@@ -1,3 +1,21 @@
+at (3.1.10.2) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Change Depends to include exim4 as alternative to mail-transport-agent.
+    (closes: #474999)
+  * Change Build-Depends to include ssmtp as alternative to
+    mail-transport-agent. This is what the Debian build daemons do anyway.
+    (closes: #491877)
+
+ -- Christoph Berg <myon@debian.org>  Tue, 23 Sep 2008 11:11:21 +0200
+
+at (3.1.10.1) unstable; urgency=low
+
+  * Non-maintainer uploaded to fix release goal issue.
+  * Correct LSB header of init.d script (Closes: #376780).
+
+ -- Petter Reinholdtsen <pere@debian.org>  Sun, 27 Jan 2008 06:15:14 +0100
+
 at (3.1.10) unstable; urgency=low
 
   * Fix typo in init script (closes: #321141)

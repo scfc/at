@@ -3,11 +3,11 @@ Section: admin
 Priority: important
 Maintainer: Ryan Murray <rmurray@debian.org>
 Standards-Version: 3.6.2
-Build-Depends: bison, flex, libpam0g-dev, mail-transport-agent
+Build-Depends: bison, flex, libpam0g-dev, ssmtp | mail-transport-agent
 
 Package: at
 Architecture: any
-Depends: ${shlibs:Depends}, mail-transport-agent, lsb-base (>= 3.0-10)
+Depends: ${shlibs:Depends}, exim4 | mail-transport-agent, lsb-base (>= 3.0-10)
 Description: Delayed job execution and batch processing
  At and batch read shell commands from standard input
  storing them as a job to be scheduled for execution in the
