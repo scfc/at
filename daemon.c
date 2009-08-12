@@ -50,7 +50,8 @@
 
 static const char *svnid = "$Id$";
 
-int daemon_debug;
+int daemon_debug = 0;
+int daemon_nofork = 0;
 
 static int
 lock_fd(int fd)
@@ -119,15 +120,18 @@ daemon_setup()
 	    (open("/dev/null", O_RDWR) != 2)) {
 	    perr("Error redirecting I/O");
 	}
+    }
+    if (daemon_nofork) pid = getpid();
+    else {
 	pid = fork();
 	if (pid == -1) {
 	    perr("Cannot fork");
 	} else if (pid != 0) {
 	    exit(0);
 	}
+	(void) setsid();
     }
     old_umask = umask(S_IWGRP | S_IWOTH);
-    (void) setsid();
 
     PRIV_START
 

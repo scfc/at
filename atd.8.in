@@ -1,5 +1,5 @@
 .Id $Id$
-.TH ATD 8 "Mar 1997" local "Linux Programmer's Manual"
+.TH ATD 3 "Jun 2007" at-3.1.10 "Linux Programmer's Manual"
 .SH NAME
 atd \- run jobs queued for later execution
 .SH SYNOPSIS
@@ -10,6 +10,7 @@ atd \- run jobs queued for later execution
 .IR batch_interval ]
 .RB [ -d ]
 .RB [ -s ]
+.RB [ -n ]
 .SH DESCRIPTION
 .B atd
 runs jobs queued by
@@ -46,6 +47,9 @@ A script invoking
 is installed as
 .B @prefix@/sbin/atrun
 for backward compatibility.
+.TP 8
+.B -n
+Don't fork option.
 .SH WARNING
 .B atd
 won't work if its spool directory is mounted via NFS even if

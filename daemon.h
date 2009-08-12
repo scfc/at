@@ -14,3 +14,4 @@ __attribute__((noreturn))
 perr (const char *fmt, ...);
 
 extern int daemon_debug;
+extern int daemon_nofork;
