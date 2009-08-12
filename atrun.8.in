@@ -11,7 +11,7 @@ atrun \- run jobs queued for later execution
 .B atrun
 runs jobs queued by
 .BR at(1) .
-It is a shell script containing invoking
+It is a shell script invoking
 .B @sbindir@/atd
 with the
 .I -s

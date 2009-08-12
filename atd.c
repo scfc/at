@@ -316,7 +316,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	     "aborting", jobno, filename);
 
     if (buf.st_nlink > 2) {
-	perr("Someboy is trying to run a linked script for job %8lu (%.500s)",
+	perr("Somebody is trying to run a linked script for job %8lu (%.500s)",
 	     jobno, filename);
     }
     if ((fflags = fcntl(fd_in, F_GETFD)) < 0)
@@ -607,6 +607,7 @@ run_loop()
 		 * Let's remove the lockfile and reschedule.
 		 */
 		strncpy(lock_name, dirent->d_name, sizeof(lock_name));
+		lock_name[sizeof(lock_name)-1] = '\0';
 		lock_name[0] = '=';
 		unlink(lock_name);
 		next_job = now;
@@ -623,7 +624,7 @@ run_loop()
 	nothing_to_do = 0;
 
 	/* There's a job for later.  Note its execution time if it's
-	 * the earlierst so far.
+	 * the earliest so far.
 	 */
 	if (run_time > now) {
 	    if (next_job > run_time) {
@@ -641,6 +642,7 @@ run_loop()
 	    run_batch++;
 	    if (strcmp(batch_name, dirent->d_name) > 0) {
 		strncpy(batch_name, dirent->d_name, sizeof(batch_name));
+		batch_name[sizeof(batch_name)-1] = '\0';
 		batch_uid = buf.st_uid;
 		batch_gid = buf.st_gid;
 		batch_queue = queue;
@@ -683,7 +685,7 @@ run_loop()
 int
 main(int argc, char *argv[])
 {
-/* Browse through  ATJOB_DIR, checking all the jobfiles wether they should
+/* Browse through ATJOB_DIR, checking all the jobfiles whether they should
  * be executed and or deleted. The queue is coded into the first byte of
  * the job filename, the date (in minutes since Eon) as a hex number in the
  * following eight bytes, followed by a dot and a serial number.  A file
