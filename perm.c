@@ -135,34 +135,61 @@ check_permission()
  *  We must check if the atd daemon userid will be allowed to gain the job owner user's
  *  credentials with PAM . If not, the user has been denied at(1) usage, eg. with pam_access.
  */
-  setreuid(daemon_uid, daemon_uid);
-  setregid(daemon_gid, daemon_gid);
+  if (setreuid(daemon_uid, daemon_uid) != 0) {
+      fprintf(stderr, "cannot set egid: %s", strerror(errno));
+      exit(1);
+  }
+  if (setregid(daemon_gid, daemon_gid) != 0) {
+      fprintf(stderr, "cannot set euid: %s", strerror(errno));
+      exit(1);
+  }
 
 # define PAM_FAIL_CHECK if (retcode != PAM_SUCCESS) { \
-                              fprintf(stderr,"PAM authentication failure: %s\n",pam_strerror(pamh, retcode)); \
-                 pam_close_session(pamh,PAM_SILENT); \
-                              pam_end(pamh, retcode); \
-                               setregid(gid,egid); \
-                               setreuid(uid,euid); \
-                               return(0); \
-                           }
+     fprintf(stderr,"PAM failure: %s\n",pam_strerror(pamh, retcode)); \
+     if (pamh) \
+         pam_end(pamh, retcode); \
+     if (setregid(gid,egid) != 0) { \
+         fprintf(stderr, "cannot set egid: %s", strerror(errno)); \
+         exit(1); \
+     } \
+     if (setreuid(uid,euid) != 0) { \
+         fprintf(stderr, "cannot set euid: %s", strerror(errno)); \
+         exit(1); \
+     } \
+     return(0); \
+     }
+
+# define PAM_SESSION_FAIL if (retcode != PAM_SUCCESS) \
+      pam_close_session(pamh,PAM_SILENT);
+
+  pamh = NULL;
   retcode = pam_start("atd", pentry->pw_name, &conv, &pamh);
   PAM_FAIL_CHECK;
   retcode = pam_set_item(pamh, PAM_TTY, "atd");
   PAM_FAIL_CHECK;
   retcode = pam_acct_mgmt(pamh, PAM_SILENT);
+  PAM_SESSION_FAIL;
   PAM_FAIL_CHECK;
   retcode = pam_open_session(pamh, PAM_SILENT);
+  PAM_SESSION_FAIL;
   PAM_FAIL_CHECK;
   retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
+  PAM_SESSION_FAIL;
   PAM_FAIL_CHECK;
 
   pam_setcred(pamh, PAM_DELETE_CRED | PAM_SILENT );
   pam_close_session(pamh,PAM_SILENT);
   pam_end(pamh, PAM_ABORT);
 
-  setregid(gid,egid);
-  setreuid(uid,euid);
+  if (setregid(gid,egid) != 0) {
+     fprintf(stderr, "cannot set egid: %s", strerror(errno));
+     exit(1);
+  }
+  if (setreuid(uid,euid) != 0) {
+     fprintf(stderr, "cannot set euid: %s", strerror(errno));
+     exit(1);
+  }
+
 
 #endif
 

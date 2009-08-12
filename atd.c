@@ -131,15 +131,17 @@ static const struct pam_conv conv = {
 };
 
 #define PAM_FAIL_CHECK if (retcode != PAM_SUCCESS) { \
-	fprintf(stderr,"\n%s\n",pam_strerror(pamh, retcode)); \
+	fprintf(stderr,"\nPAM failure %s\n",pam_strerror(pamh, retcode)); \
 	syslog(LOG_ERR,"%s",pam_strerror(pamh, retcode)); \
-	pam_close_session(pamh, PAM_SILENT); \
-	pam_end(pamh, retcode); exit(1); \
+    if (pamh) \
+        pam_end(pamh, retcode); \
+    exit(1); \
     }
-#define PAM_END { retcode = pam_close_session(pamh,0); \
-		pam_end(pamh,retcode); }
 
-#endif /* WITH_PAM */
+#define PAM_SESSION_FAIL if (retcode != PAM_SUCCESS) \
+    pam_close_session(pamh, PAM_SILENT);
+
+#endif /* end WITH_PAM */
 
 /* Signal handlers */
 RETSIGTYPE 
@@ -408,6 +410,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 //add for fedora, removed HAVE_PAM
 #ifdef  WITH_PAM
+    pamh = NULL;
     retcode = pam_start("atd", pentry->pw_name, &conv, &pamh);
     PAM_FAIL_CHECK;
     retcode = pam_set_item(pamh, PAM_TTY, "atd");
@@ -415,8 +418,10 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     retcode = pam_acct_mgmt(pamh, PAM_SILENT);
     PAM_FAIL_CHECK;
     retcode = pam_open_session(pamh, PAM_SILENT);
+    PAM_SESSION_FAIL;
     PAM_FAIL_CHECK;
     retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
+    PAM_SESSION_FAIL;
     PAM_FAIL_CHECK;
     closelog();
     openlog("atd", LOG_PID, LOG_ATD);
@@ -612,6 +617,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
    int mail_pid = -1;
 //add for fedora
 #ifdef  WITH_PAM
+       pamh = NULL;
        retcode = pam_start("atd", pentry->pw_name, &conv, &pamh);
        PAM_FAIL_CHECK;
        retcode = pam_set_item(pamh, PAM_TTY, "atd");
@@ -619,8 +625,10 @@ run_file(const char *filename, uid_t uid, gid_t gid)
        retcode = pam_acct_mgmt(pamh, PAM_SILENT);
        PAM_FAIL_CHECK;
        retcode = pam_open_session(pamh, PAM_SILENT);
+       PAM_SESSION_FAIL;
        PAM_FAIL_CHECK;
        retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
+       PAM_SESSION_FAIL;
        PAM_FAIL_CHECK;
         /* PAM has now re-opened our log to auth.info ! */
        closelog();
