@@ -80,7 +80,7 @@ AC_FUNC_VPRINTF
 AC_FUNC_GETLOADAVG
 AC_CHECK_FUNCS(getcwd mktime strftime setreuid setresuid sigaction waitpid)
 AC_CHECK_HEADERS(security/pam_appl.h, [PAMLIB="-lpam"
-				      AC_DEFINE(HAVE_PAM)])
+				      AC_DEFINE(WITH_PAM)])
 
 dnl Checking for programs
 

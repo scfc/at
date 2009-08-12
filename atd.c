@@ -121,7 +121,7 @@ static int run_as_daemon = 0;
 
 static volatile sig_atomic_t term_signal = 0;
 
-#ifdef HAVE_PAM
+#ifdef WITH_PAM
 #include <security/pam_appl.h>
 
 static pam_handle_t *pamh = NULL;
@@ -139,7 +139,7 @@ static const struct pam_conv conv = {
 #define PAM_END { retcode = pam_close_session(pamh,0); \
 		pam_end(pamh,retcode); }
 
-#endif /* HAVE_PAM */
+#endif /* WITH_PAM */
 
 /* Signal handlers */
 RETSIGTYPE 
@@ -246,7 +246,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     char queue;
     char fmt[64];
     unsigned long jobno;
-#ifdef HAVE_PAM
+#ifdef WITH_PAM
     int retcode;
 #endif
 
