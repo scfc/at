@@ -498,7 +498,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 #if defined(SENDMAIL)
 	    execl(SENDMAIL, "sendmail", mailname, (char *) NULL);
 #else
-#error      "No mail command specified."
+	    perr("No mail command specified.");
 #endif
 	    perr("Exec failed for mail command");
 
