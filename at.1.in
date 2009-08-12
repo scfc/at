@@ -89,7 +89,9 @@ or giving a date of the form
 or
 .B MM/DD/YY
 or
-.B DD.MM.YY.
+.B DD.MM.YY
+or
+.B YYYY-MM-DD.
 The specification of a date
 .I must
 follow the specification of the time of day.
