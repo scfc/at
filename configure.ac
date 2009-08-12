@@ -1,11 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(at.c)
+AC_INIT(at, 3.1.9)
+AC_CONFIG_SRCDIR(at.c)
+
 AC_PREFIX_DEFAULT(/usr)
 AC_CONFIG_HEADER(config.h)
-AC_PREREQ(2.7)
+AC_PREREQ([2.64])
 
-VERSION="3.1.9"
+VERSION=AC_PACKAGE_VERSION
 if test "X$CFLAGS" = "X"; then
 CFLAGS="-O2 -g -Wall"
 fi
@@ -21,7 +23,6 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_YACC
 AC_PROG_LEX
-
 
 AC_MSG_CHECKING(HP-UX -Aa)
 
@@ -47,14 +48,16 @@ AC_TRY_RUN([ main(int ac, char **av) { return 0; } ],
 AC_MSG_CHECKING(__attribute__((noreturn)))
 AC_TRY_COMPILE([], [void __attribute__((noreturn)) panic(void);],
     AC_MSG_RESULT(yes)
-    AC_DEFINE(HAVE_ATTRIBUTE_NORETURN),
+    AC_DEFINE(HAVE_ATTRIBUTE_NORETURN, 1,
+	      [Define to 1 if compiler supports __attribute__((noreturn))]),
     AC_MSG_RESULT(no)
 )
 dnl Checks for libraries.
 
 AC_CHECK_LIB(fl,yywrap,
 	[],
-	AC_DEFINE(NEED_YYWRAP)
+	AC_DEFINE(NEED_YYWRAP, 1,
+		  [Define to 1 if we need to provide our own yywrap()])
 )
 
 dnl Checks for header files.
@@ -79,15 +82,17 @@ dnl Checks for library functions.
 AC_FUNC_VPRINTF
 AC_FUNC_GETLOADAVG
 AC_CHECK_FUNCS(getcwd mktime strftime setreuid setresuid sigaction waitpid)
-AC_CHECK_HEADERS(security/pam_appl.h, [PAMLIB="-lpam"
-				      AC_DEFINE(HAVE_PAM)])
+AC_CHECK_HEADERS(security/pam_appl.h, [
+  PAMLIB="-lpam"
+  AC_DEFINE(HAVE_PAM, 1, [Define to 1 for PAM support])
+])
 
 dnl Checking for programs
 
 AC_PATH_PROG(SENDMAIL, sendmail, , $PATH:/usr/lib:/usr/sbin )
-if test "$ac_cv_path_SENDMAIL" != "" ; then
-AC_DEFINE_UNQUOTED(SENDMAIL,"$ac_cv_path_SENDMAIL")
-MAIL_CMD="$ac_cv_path_SENDMAIL"
+if test "$SENDMAIL" != "" ; then
+AC_DEFINE_UNQUOTED(SENDMAIL,"$SENDMAIL", [Define mail command for sending])
+MAIL_CMD="$SENDMAIL"
 fi
 
 AC_SUBST(MAIL_CMD)
@@ -116,28 +121,24 @@ AC_SUBST(ETCDIR)
 
 AC_MSG_CHECKING(location of pid file)
 if test -d /var/run ; then
-    AC_DEFINE_UNQUOTED(PIDFILE, "/var/run/atd.pid")
-    AC_MSG_RESULT(/var/run)
+    PIDDIR=/var/run
 elif test -d /usr/run ; then
-    AC_DEFINE_UNQUOTED(PIDFILE, "/usr/run/atd.pid")
-    AC_MSG_RESULT(/usr/run)
+    PIDDIR=/usr/run
 else
-    AC_DEFINE_UNQUOTED(PIDFILE, "$ETCDIR/atd.pid")
-    AC_MSG_RESULT(/etc)
+    PIDDIR="$ETCDIR"
 fi
+AC_DEFINE_UNQUOTED(PIDFILE, "$PIDDIR/atd.pid", [What is the name of our PID file?])
+AC_MSG_RESULT($PIDDIR)
 
 AC_MSG_CHECKING(location of spool directory)
 if test -d /var/spool/atjobs ; then
   sp=/var/spool
-  AC_DEFINE(SPOOLDIR, "/var/spool")
   AC_MSG_RESULT(Using existing /var/spool/at{jobs|run})
 elif  test -d /var/spool/cron ; then
   sp=/var/spool/cron
-  AC_DEFINE(SPOOLDIR, "/var/spool/cron")
   AC_MSG_RESULT(/var/spool/cron)
 elif test -d /usr/spool/cron ; then
   sp=/usr/spool/cron
-  AC_DEFINE(SPOOLDIR, "/usr/spool/cron")
   AC_MSG_RESULT(/usr/spool/cron)
 else
   AC_MSG_RESULT(not found)
@@ -154,23 +155,19 @@ AC_ARG_WITH(jobdir,
     if test x$sp == x ; then
       AC_MSG_ERROR(Need explicit JOBDIR when SPOOLDIR not found.)
     fi
-    AC_DEFINE_UNQUOTED(ATJOB_DIR, "$sp/atjobs")
-    AC_MSG_RESULT($ATJOB_DIR)
     ATJBD="$sp/atjobs"
     ;;
   *)
-    AC_DEFINE_UNQUOTED(ATJOB_DIR, "$withval")
-    AC_MSG_RESULT($withval)
     ATJBD="$withval"
     ;;
   esac ],
   if test x$sp == x ; then
     AC_MSG_ERROR(Need --with-jobdir=PATH when SPOOLDIR not found.)
   fi
-  AC_DEFINE_UNQUOTED(ATJOB_DIR, "$sp/atjobs")
-  AC_MSG_RESULT($sp/atjobs)
   ATJBD="$sp/atjobs"
 )
+AC_DEFINE_UNQUOTED(ATJOB_DIR, "$ATJBD", [Where do we place out input directories?])
+AC_MSG_RESULT($ATJBD)
 AC_SUBST(ATJBD)
 
 AC_MSG_CHECKING(atspool)
@@ -184,23 +181,19 @@ AC_ARG_WITH(atspool,
     if test x$sp == x ; then
       AC_MSG_ERROR(Need explicit ATSPOOL when SPOOLDIR not found.)
     fi
-    AC_DEFINE_UNQUOTED(ATSPOOL_DIR, "$sp/atspool")
-    AC_MSG_RESULT($sp/atspool)
     ATSPD=$sp/atspool
     ;;
   *)
-    AC_DEFINE_UNQUOTED(ATSPOOL_DIR, "$withval")
-    AC_MSG_RESULT($withval)
     ATSPD=$withval
     ;;
   esac ],
   if test x$sp == x ; then
     AC_MSG_ERROR(Need --with-atspool=PATH when SPOOLDIR not found.)
   fi
-  AC_DEFINE_UNQUOTED(ATSPOOL_DIR, "$sp/atspool")
-  AC_MSG_RESULT($sp/atspool)
   ATSPD=$sp/atspool
 )
+AC_DEFINE_UNQUOTED(ATSPOOL_DIR, "$ATSPD", [Where do we spool our output?])
+AC_MSG_RESULT($ATSPD)
 AC_SUBST(ATSPD)
 
 AC_MSG_CHECKING(default at queue)
@@ -211,20 +204,16 @@ AC_ARG_WITH(atqueue,
     AC_MSG_ERROR(Need DEFAULT_AT_QUEUE.)
     ;;
   yes)
-    AC_DEFINE_UNQUOTED(DEFAULT_AT_QUEUE, 'a')
-    AC_MSG_RESULT(a)
     DEFATQ=a
     ;;
   *)
-    AC_DEFINE_UNQUOTED(DEFAULT_AT_QUEUE, "$withval")
-    AC_MSG_RESULT($withval)
     DEFATQ=$withval
     ;;
     esac ],
-    AC_DEFINE_UNQUOTED(DEFAULT_AT_QUEUE, 'a')
-    AC_MSG_RESULT(a)
     DEFATQ=a
 )
+AC_DEFINE_UNQUOTED(DEFAULT_AT_QUEUE, '$DEFATQ', [Default queue for at])
+AC_MSG_RESULT($DEFATQ)
 
 AC_SUBST(DEFATQ)
 
@@ -236,20 +225,16 @@ AC_ARG_WITH(batchqueue,
     AC_MSG_ERROR(Need DEFAULT_BATCH_QUEUE.)
     ;;
   yes)
-    AC_DEFINE_UNQUOTED(DEFAULT_BATCH_QUEUE, 'b')
-    AC_MSG_RESULT(b)
     DEFBQ=b
     ;;
   *)
-    AC_DEFINE_UNQUOTED(DEFAULT_BATCH_QUEUE, "$withval")
-    AC_MSG_RESULT($withval)
     DEFBQ=$withval
     ;;
     esac ],
-    AC_DEFINE_UNQUOTED(DEFAULT_BATCH_QUEUE, 'b')
-    AC_MSG_RESULT(b)
     DEFBQ=b
 )
+AC_DEFINE_UNQUOTED(DEFAULT_BATCH_QUEUE, '$DEFBQ', [Default queue for batch])
+AC_MSG_RESULT($DEFBQ)
 
 AC_SUBST(DEFBQ)
 
@@ -316,4 +301,5 @@ AC_ARG_WITH(daemon_groupname,
 )
 AC_SUBST(DAEMON_GROUPNAME)
 
-AC_OUTPUT(Makefile atrun atd.8 atrun.8 at.1 batch)
+AC_CONFIG_FILES(Makefile atrun atd.8 atrun.8 at.1 batch)
+AC_OUTPUT
