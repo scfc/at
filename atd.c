@@ -303,6 +303,8 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	free(newname);
 	return;
     }
+    (void) setsid(); //own session for process
+
     /* Let's see who we mail to.  Hopefully, we can read it from
      * the command file; if not, send it to the owner, or, failing that,
      * to root.
