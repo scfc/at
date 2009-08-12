@@ -94,7 +94,8 @@ usage(void)
 {
 /* Print usage and exit.
  */
-    fprintf(stderr, "Usage: at [-V] [-q x] [-f file] [-mldbv] time\n"
+    fprintf(stderr, "Usage: at [-V] [-q x] [-f file] [-mldbv] timespec ...\n"
+            "       at [-V] [-q x] [-f file] [-mldbv] -t time\n"
     	    "       at -c job ...\n"
 	    "       atq [-V] [-q x]\n"
 	    "       atrm [-V] job ...\n"
