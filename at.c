@@ -461,6 +461,8 @@ writefile(time_t runtimer, char queue)
     fprintf(fp, " || {\n\t echo 'Execution directory "
 	    "inaccessible' >&2\n\t exit 1\n}\n");
 
+    fprintf(fp, "${SHELL:-/bin/sh} << `(dd if=/dev/urandom count=200 bs=1 2>/dev/null|LC_ALL=C tr -d -c '[:alnum:]')`\n\n");
+
     istty = isatty(fileno(stdin));
     if (istty) {
 	fprintf(stderr, "at> ");
@@ -1045,7 +1047,7 @@ main(int argc, char **argv)
 	   It also alows a warning diagnostic to be printed.  Because of the
 	   possible variance, we always output the diagnostic. */
 
-	fprintf(stderr, "warning: commands will be executed using /bin/sh\n");
+//	fprintf(stderr, "warning: commands will be executed using /bin/sh\n");
 
 	writefile(timer, queue);
 	break;
