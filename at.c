@@ -314,26 +314,19 @@ writefile(time_t runtimer, char queue)
 	 * bit.  Yes, this is a kluge.
 	 */
 	cmask = umask(S_IRUSR | S_IWUSR | S_IXUSR);
-        seteuid(real_uid);
+        seteuid(effective_uid);
 	if ((fd = open(atfile, O_CREAT | O_EXCL | O_TRUNC | O_WRONLY, S_IRUSR)) == -1)
 	    perr("Cannot create atjob file %.500s", atfile);
-        seteuid(effective_uid);
+        //seteuid(effective_uid);
 
 	if ((fd2 = dup(fd)) < 0)
 	    perr("Error in dup() of job file");
 
-        /*
 	if (fchown(fd2, real_uid, real_gid) != 0)
-	    perr("Cannot give away file");
-        */
+	    perr("Cannot give real_uid and real_gid the file");
 
     PRIV_END
 
-    /* We no longer need suid root; now we just need to be able to write
-     * to the directory, if necessary.
-     */
-
-    REDUCE_PRIV(daemon_uid, daemon_gid)
     /* We've successfully created the file; let's set the flag so it 
      * gets removed in case of an interrupt or error.
      */
@@ -491,7 +484,7 @@ writefile(time_t runtimer, char queue)
      */
 
     if (fchmod(fd2, S_IRUSR | S_IWUSR | S_IXUSR) < 0)
-	perr("Cannot give away file");
+	perr("Cannot change the mode of the file");
 
     close(fd2);
 
@@ -656,7 +649,7 @@ process_jobs(int argc, char **argv, int what)
                     We need the unprivileged uid here since the file is owned by the real
                     (not effective) uid.
                     */
-                    setregid(real_gid, effective_gid);
+		    PRIV_START
 
 		    if (queue == '=') {
 			fprintf(stderr, "Warning: deleting running job\n");
@@ -665,8 +658,8 @@ process_jobs(int argc, char **argv, int what)
 			perr("Cannot unlink %.500s", dirent->d_name);
 			rc = EXIT_FAILURE;
 		    }
+		    PRIV_END
 
-                    setregid(effective_gid, real_gid);
 		    done = 1;
 
 		    break;
@@ -676,7 +669,7 @@ process_jobs(int argc, char **argv, int what)
 			FILE *fp;
 			int ch;
 
-			setregid(real_gid, effective_gid);
+			PRIV_START
 			fp = fopen(dirent->d_name, "r");
 
 			if (fp) {
@@ -689,7 +682,7 @@ process_jobs(int argc, char **argv, int what)
 			    perr("Cannot open %.500s", dirent->d_name);
 			    rc = EXIT_FAILURE;
 			}
-			setregid(effective_gid, real_gid);
+			PRIV_END
 		    }
 		    break;
 
