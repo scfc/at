@@ -61,12 +61,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef TM_IN_SYS_TIME
-#include <sys/time.h>
-#else
 #include <time.h>
-#endif
+#include <sys/time.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -244,6 +240,12 @@ writefile(time_t runtimer, char queue)
     int kill_errno;
     int rc;
     int mailsize = 128;
+    struct timeval tv;
+    struct timezone tz;
+    long int i;
+
+    gettimeofday(&tv, &tz);
+    srandom(getpid()+tv.tv_usec);
 
 /* Install the signal handler for SIGINT; terminate after removing the
  * spool file if necessary
@@ -455,7 +457,8 @@ writefile(time_t runtimer, char queue)
     fprintf(fp, " || {\n\t echo 'Execution directory "
 	    "inaccessible' >&2\n\t exit 1\n}\n");
 
-    fprintf(fp, "${SHELL:-/bin/sh} << `(dd if=/dev/urandom count=200 bs=1 2>/dev/null|LC_ALL=C tr -d -c '[:alnum:]')`\n\n");
+    i = random();
+    fprintf(fp, "${SHELL:-/bin/sh} << marcinDELIMITER%08lx\n", i);
 
     istty = isatty(fileno(stdin));
     if (istty) {
@@ -473,6 +476,7 @@ writefile(time_t runtimer, char queue)
 	fprintf(stderr, "<EOT>\n");
     }
     fprintf(fp, "\n");
+    fprintf(fp, "marcinDELIMITER%08lx\n", i);
     if (ferror(fp))
 	panic("Output error");
 
