@@ -29,7 +29,7 @@ LEX		= @LEX@
 LEXLIB		= @LEXLIB@
 
 CC 		= @CC@
-CFLAGS 		= @CFLAGS@
+CFLAGS 		= -I$(srcdir) @CFLAGS@
 LDFLAGS		= @LDFLAGS@
 LFILE		= $(ATJOB_DIR)/.SEQ
 DEFS 		= @DEFS@ -DVERSION=\"$(VERSION)\" \
@@ -43,12 +43,12 @@ INSTALL		= @INSTALL@
 PAMLIB          = @PAMLIB@
 
 CLONES		= atq atrm 
-ATOBJECTS	= at.o panic.o perm.o y.tab.o lex.yy.o
+ATOBJECTS	= at.o panic.o perm.o posixtm.o y.tab.o lex.yy.o
 RUNOBJECTS	= atd.o daemon.o $(LIBOBJS)
-CSRCS   	= at.c atd.c panic.c perm.c daemon.c getloadavg.c \
+CSRCS   	= at.c atd.c panic.c perm.c posixtm.c daemon.c getloadavg.c \
 			y.tab.c y.tab.h lex.yy.c
-HEADERS 	= at.h panic.h parsetime.h perm.h daemon.h getloadavg.h\
-			privs.h
+HEADERS 	= at.h panic.h parsetime.h perm.h posixtm.h daemon.h \
+			getloadavg.h privs.h
 
 OTHERS		= parsetime.l parsetime.y
 
@@ -153,10 +153,11 @@ parsetest: lex.yy.c y.tab.c
 .depend: $(CSRCS)
 	gcc $(CFLAGS) $(DEFS) -MM $(CSRCS) > .depend
 
-at.o: at.c config.h at.h panic.h parsetime.h perm.h privs.h
+at.o: at.c config.h at.h panic.h parsetime.h perm.h posixtm.h privs.h
 atd.o: atd.c config.h privs.h daemon.h getloadavg.h
 panic.o: panic.c config.h panic.h at.h
 parsetime.o: parsetime.c config.h at.h panic.h
 perm.o: perm.c config.h privs.h at.h
+posixtm.o: posixtm.c posixtm.h
 daemon.o: daemon.c config.h daemon.h privs.h
 getloadavg.o: getloadavg.c config.h getloadavg.h

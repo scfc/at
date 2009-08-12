@@ -78,7 +78,7 @@
 #include "panic.h"
 #include "parsetime.h"
 #include "perm.h"
-
+#include "posixtm.h"
 #include "privs.h"
 
 /* Macros */
@@ -759,9 +759,9 @@ main(int argc, char **argv)
     char *pgm;
 
     int program = AT;		/* our default program */
-    char *options = "q:f:MmvldhVc";	/* default options for at */
+    char *options = "q:f:MmvldhVct:";	/* default options for at */
     int disp_version = 0;
-    time_t timer;
+    time_t timer = 0;
     struct passwd *pwe;
     struct group *ge;
 
@@ -865,6 +865,15 @@ main(int argc, char **argv)
 	    options = "";
 	    break;
 
+	case 't':
+	    if (!posixtime(&timer, optarg, PDS_LEADING_YEAR | PDS_CENTURY | PDS_SECONDS)) {
+		fprintf(stderr, "invalid date format: %s\n", optarg);
+		exit(EXIT_FAILURE);
+	    }
+	    /* drop seconds */
+	    timer -= timer % 60;
+	    break;
+
 	default:
 	    usage();
 	    break;
@@ -922,9 +931,11 @@ main(int argc, char **argv)
 
     case AT:
 	if (argc > optind) {
+	    if (timer != 0) {
+                fprintf(stderr, "Cannot give time two times.\n");
+                exit(EXIT_FAILURE);
+            }
 	    timer = parsetime(argc - optind, argv + optind);
-	} else {
-	    timer = 0;
 	}
 
 	if (timer == 0) {
@@ -953,9 +964,13 @@ main(int argc, char **argv)
 	else
 	    queue = DEFAULT_BATCH_QUEUE;
 
-	if (argc > optind)
+	if (argc > optind) {
+            if (timer != 0) {
+                fprintf(stderr, "Cannot give time two times.\n");
+                exit(EXIT_FAILURE);
+            }
 	    timer = parsetime(argc, argv);
-	else
+        } else if (timer == 0)
 	    timer = time(NULL);
 
 	if (atverify) {
