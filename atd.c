@@ -436,6 +436,9 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	    if (setuid(uid) < 0)
 		perr("Cannot set user id");
 
+	    if (signal(SIGCHLD, SIG_DFL) == SIG_ERR)
+		perr("Cannot reset signal handler to default");
+
 	    chdir("/");
 
 	    if (execle("/bin/sh", "sh", (char *) NULL, nenvp) != 0)
