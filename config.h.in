@@ -181,3 +181,9 @@
 
 #undef HAVE_ATTRIBUTE_NORETURN
 #undef HAVE_PAM
+
+/* Define if you are building with_pam */
+#undef WITH_PAM
+
+/* Define if you are building with_selinux  */
+#undef WITH_SELINUX

@@ -316,4 +316,19 @@ AC_ARG_WITH(daemon_groupname,
 )
 AC_SUBST(DAEMON_GROUPNAME)
 
+AC_ARG_WITH(selinux,
+[ --with-selinux       Define to run with selinux],
+AC_DEFINE(WITH_SELINUX),
+)
+AC_CHECK_LIB(selinux, is_selinux_enabled, SELINUXLIB=-lselinux)
+AC_SUBST(SELINUXLIB)
+AC_SUBST(WITH_SELINUX)
+
+AC_ARG_WITH(pam,
+[ --with-pam            Define to enable pam support ],
+AC_DEFINE(WITH_PAM),
+)
+AC_CHECK_LIB(pam, pam_start, PAMLIB='-lpam -lpam_misc')
+AC_SUBST(PAMLIB)
+
 AC_OUTPUT(Makefile atrun atd.8 atrun.8 at.1 batch)

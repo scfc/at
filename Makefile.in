@@ -41,6 +41,7 @@ LIBS		= @LIBS@
 LIBOBJS		= @LIBOBJS@
 INSTALL		= @INSTALL@
 PAMLIB          = @PAMLIB@
+SELINUXLIB = @SELINUXLIB@
 
 CLONES		= atq atrm 
 ATOBJECTS	= at.o panic.o perm.o y.tab.o lex.yy.o
@@ -67,13 +68,13 @@ LIST = Filelist Filelist.asc
 all: at atd atrun
 
 at: $(ATOBJECTS)
-	$(CC) $(CFLAGS) -o at -pie $(ATOBJECTS) $(LIBS) $(LEXLIB)
+	$(CC) $(CFLAGS) -o at -pie $(ATOBJECTS) $(LIBS) $(LEXLIB) $(PAMLIB)
 	rm -f $(CLONES)
 	$(LN_S) -f at atq
 	$(LN_S) -f at atrm
 
 atd: $(RUNOBJECTS)
-	$(CC) $(CFLAGS) -o atd -pie $(RUNOBJECTS) $(LIBS) $(PAMLIB)
+	$(CC) $(CFLAGS) -o atd -pie $(RUNOBJECTS) $(LIBS) $(SELINUXLIB) $(PAMLIB)
 
 y.tab.c y.tab.h: parsetime.y
 	$(YACC) -d parsetime.y

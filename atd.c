@@ -74,6 +74,14 @@
 #include <syslog.h>
 #endif
 
+#ifdef WITH_SELINUX
+#include <selinux/selinux.h>
+#include <selinux/get_context_list.h>
+int selinux_enabled=0;
+#include <selinux/flask.h>
+#include <selinux/av_permissions.h>
+#endif
+
 /* Local headers */
 
 #include "privs.h"
@@ -81,6 +89,10 @@
 
 #ifndef HAVE_GETLOADAVG
 #include "getloadavg.h"
+#endif
+
+#ifndef LOG_ATD
+#define LOG_ATD        LOG_DAEMON
 #endif
 
 /* Macros */
@@ -121,6 +133,7 @@ static const struct pam_conv conv = {
 #define PAM_FAIL_CHECK if (retcode != PAM_SUCCESS) { \
 	fprintf(stderr,"\n%s\n",pam_strerror(pamh, retcode)); \
 	syslog(LOG_ERR,"%s",pam_strerror(pamh, retcode)); \
+	pam_close_session(pamh, PAM_SILENT); \
 	pam_end(pamh, retcode); exit(1); \
     }
 #define PAM_END { retcode = pam_close_session(pamh,0); \
@@ -194,6 +207,19 @@ myfork()
 }
 
 #define fork myfork
+#endif
+
+#undef ATD_MAIL_PROGRAM
+#undef ATD_MAIL_NAME
+#if defined(SENDMAIL)
+#define ATD_MAIL_PROGRAM SENDMAIL
+#define ATD_MAIL_NAME    "sendmail"
+#elif  defined(MAILC)
+#define ATD_MAIL_PROGRAM MAILC
+#define ATD_MAIL_NAME    "mail"
+#elif  defined(MAILX)
+#define ATD_MAIL_PROGRAM MAILX
+#define ATD_MAIL_NAME    "mailx"
 #endif
 
 static void
@@ -378,9 +404,11 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     fstat(fd_out, &buf);
     size = buf.st_size;
 
-#ifdef HAVE_PAM
-    PRIV_START
+//add for fedora, removed HAVE_PAM
+#ifdef  WITH_PAM
     retcode = pam_start("atd", pentry->pw_name, &conv, &pamh);
+    PAM_FAIL_CHECK;
+    retcode = pam_set_item(pamh, PAM_TTY, "atd");
     PAM_FAIL_CHECK;
     retcode = pam_acct_mgmt(pamh, PAM_SILENT);
     PAM_FAIL_CHECK;
@@ -388,8 +416,10 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     PAM_FAIL_CHECK;
     retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
     PAM_FAIL_CHECK;
-    PRIV_END
+    closelog();
+    openlog("atd", LOG_PID, LOG_ATD);
 #endif
+//end
 
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
@@ -402,6 +432,14 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     else if (pid == 0) {
 	char *nul = NULL;
 	char **nenvp = &nul;
+	char **pam_envp=0L;
+
+	PRIV_START
+#ifdef WITH_PAM
+	pam_envp = pam_getenvlist(pamh);
+	if ( ( pam_envp != 0L ) && (pam_envp[0] != 0L) )
+		nenvp = pam_envp;
+#endif
 
 	/* Set up things for the child; we want standard input from the
 	 * input file, and standard output and error sent to our output file.
@@ -423,8 +461,6 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	if (chdir(ATJOB_DIR) < 0)
 	    perr("Cannot chdir to " ATJOB_DIR);
 
-	PRIV_START
-
 	    nice((tolower((int) queue) - 'a' + 1) * 2);
 
 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
@@ -441,10 +477,91 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 	    chdir("/");
 
+#ifdef WITH_SELINUX
+           if (selinux_enabled>0) {
+          security_context_t user_context=NULL;
+               security_context_t  file_context=NULL;
+               int retval=0;
+               struct av_decision avd;
+               char *seuser=NULL;
+               char *level=NULL;
+
+               if (getseuserbyname(pentry->pw_name, &seuser, &level) == 0) {
+                  retval=get_default_context_with_level(seuser, level, NULL, &user_context);
+                  free(seuser);
+                  free(level);
+                  if (retval) {
+                      if (security_getenforce()==1) {
+                          perr("execle: couldn't get security context for user %s\n", pentry->pw_name);
+                      } else {
+                          syslog(LOG_ERR, "execle: couldn't get security context for user %s\n", pentry->pw_name);
+                          goto out;
+                      }
+                  }
+               }
+
+             /*
+              * Since crontab files are not directly executed,
+              * crond must ensure that the crontab file has
+              * a context that is appropriate for the context of
+              * the user cron job.  It performs an entrypoint
+              * permission check for this purpose.
+              */
+        if (fgetfilecon(STDIN_FILENO, &file_context) < 0) {
+                     if (security_getenforce() > 0) {
+                         perr("fgetfilecon FAILED %s", filename);
+                     } else {
+                         syslog(LOG_ERR, "fgetfilecon FAILED %s", filename);
+                         goto out;
+                     }
+             }
+             retval = security_compute_av(user_context,
+                                          file_context,
+                                          SECCLASS_FILE,
+                                          FILE__ENTRYPOINT,
+                                          &avd);
+             freecon(file_context);
+             if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
+               if (security_getenforce()==1)
+                 perr("Not allowed to set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+             }
+
+             if (setexeccon(user_context) < 0) {
+               if (security_getenforce()==1) {
+                 perr("Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+               } else {
+                 syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+               }
+             }
+             freecon(user_context);
+           }
+#endif
+
 	    if (execle("/bin/sh", "sh", (char *) NULL, nenvp) != 0)
 		perr("Exec failed for /bin/sh");
 
+//add for fedora
+#ifdef WITH_SELINUX
+   if (selinux_enabled>0)
+           if (setexeccon(NULL) < 0)
+               if (security_getenforce()==1)
+               perr("Could not resset exec context for user %s\n", pentry->pw_name);
+
+#endif
+//end
+//add for fedora
+#ifdef  WITH_PAM
+       if ( ( nenvp != &nul ) && (pam_envp != 0L)  && (*pam_envp != 0L))
+       {
+           for( nenvp = pam_envp; *nenvp != 0L; nenvp++)
+               free(*nenvp);
+           free( pam_envp );
+           nenvp = &nul;
+           pam_envp=0L;
+       }
+#endif
 	PRIV_END
+// end
     }
     /* We're the parent.  Let's wait.
      */
@@ -457,6 +574,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
      */
     waitpid(pid, (int *) NULL, 0);
 
+/* remove because WITH_PAM
 #ifdef HAVE_PAM
     PRIV_START
 	pam_setcred(pamh, PAM_DELETE_CRED | PAM_SILENT);
@@ -464,7 +582,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	pam_end(pamh, retcode);
     PRIV_END
 #endif
-
+*/
     /* Send mail.  Unlink the output file after opening it, so it
      * doesn't hang around after the run.
      */
@@ -472,6 +590,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     if (open(filename, O_RDONLY) != STDIN_FILENO)
 	perr("Open of jobfile failed");
 
+#ifdef  WITH_PAM
+    pam_setcred(pamh, PAM_DELETE_CRED | PAM_SILENT );
+    pam_close_session(pamh, PAM_SILENT);
+    pam_end(pamh, PAM_ABORT);
+    closelog();
+    openlog("atd", LOG_PID, LOG_ATD);
+#endif
     unlink(filename);
 
     /* The job is now finished.  We can delete its input file.
@@ -480,8 +605,30 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     unlink(newname);
     free(newname);
 
+#ifdef ATD_MAIL_PROGRAM
     if (((send_mail != -1) && (buf.st_size != size)) || (send_mail == 1)) {
+   int mail_pid = -1;
+//add for fedora
+#ifdef  WITH_PAM
+       retcode = pam_start("atd", pentry->pw_name, &conv, &pamh);
+       PAM_FAIL_CHECK;
+       retcode = pam_set_item(pamh, PAM_TTY, "atd");
+       PAM_FAIL_CHECK;
+       retcode = pam_acct_mgmt(pamh, PAM_SILENT);
+       PAM_FAIL_CHECK;
+       retcode = pam_open_session(pamh, PAM_SILENT);
+       PAM_FAIL_CHECK;
+       retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
+       PAM_FAIL_CHECK;
+        /* PAM has now re-opened our log to auth.info ! */
+       closelog();
+       openlog("atd", LOG_PID, LOG_ATD);
+#endif
+//end
+   mail_pid = fork();
 
+   if ( mail_pid == 0 )
+   {
 	PRIV_START
 
 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
@@ -495,15 +642,80 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 	    chdir ("/");
 
-#if defined(SENDMAIL)
-	    execl(SENDMAIL, "sendmail", mailname, (char *) NULL);
-#else
-	    perr("No mail command specified.");
+#ifdef WITH_SELINUX
+           if (selinux_enabled>0) {
+             security_context_t user_context=NULL;
+             security_context_t  file_context=NULL;
+             int retval=0;
+             struct av_decision avd;
+
+             if (get_default_context(pentry->pw_name, NULL, &user_context))
+               perr("execle: couldn't get security context for user %s\n", pentry->pw_name);
+             /*
+              * Since crontab files are not directly executed,
+              * crond must ensure that the crontab file has
+              * a context that is appropriate for the context of
+              * the user cron job.  It performs an entrypoint
+              * permission check for this purpose.
+              */
+             if (fgetfilecon(STDIN_FILENO, &file_context) < 0)
+               perr("fgetfilecon FAILED %s", filename);
+
+             retval = security_compute_av(user_context,
+                                          file_context,
+                                          SECCLASS_FILE,
+                                          FILE__ENTRYPOINT,
+                                          &avd);
+             freecon(file_context);
+             if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
+           if (security_getenforce()==1) {
+                    perr("Not allowed to set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+                } else {
+                    syslog(LOG_ERR, "Not allowed to set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+                    goto out;
+                }
+        }
+
+             if (setexeccon(user_context) < 0) {
+               if (security_getenforce()==1) {
+                 perr("Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+               } else {
+                 syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
+               }
+             }
+        out:
+                freecon(user_context);
+           }
 #endif
-	    perr("Exec failed for mail command");
+            execl(ATD_MAIL_PROGRAM, ATD_MAIL_NAME, mailname, (char *) NULL);
+       perr("Exec faile for mail command");
+       exit(-1);
+
+#ifdef WITH_SELINUX
+   if (selinux_enabled>0)
+           if (setexeccon(NULL) < 0)
+                   if (security_getenforce()==1)
+                           perr("Could not reset exec context for user %s\n", pentry->pw_name);
+#endif
 
 	PRIV_END
+   }
+   else if ( mail_pid == -1 ) {
+           perr("fork of mailer failed");
+        }
+   else {
+           /* Parent */
+           waitpid(mail_pid, (int *) NULL, 0);
+   }
+#ifdef WITH_PAM
+   pam_setcred(pamh, PAM_DELETE_CRED | PAM_SILENT );
+   pam_close_session(pamh, PAM_SILENT);
+        pam_end(pamh, PAM_ABORT);
+        closelog();
+        openlog("atd", LOG_PID, LOG_ATD);
+#endif
     }
+#endif
     exit(EXIT_SUCCESS);
 }
 
@@ -701,6 +913,10 @@ main(int argc, char *argv[])
     struct passwd *pwe;
     struct group *ge;
 
+#ifdef WITH_SELINUX
+    selinux_enabled=is_selinux_enabled();
+#endif
+
 /* We don't need root privileges all the time; running under uid and gid
  * daemon is fine.
  */
@@ -717,18 +933,14 @@ main(int argc, char *argv[])
 
     RELINQUISH_PRIVS_ROOT(daemon_uid, daemon_gid)
 
-#ifndef LOG_CRON
-#define LOG_CRON	LOG_DAEMON
-#endif
-
-    openlog("atd", LOG_PID, LOG_CRON);
+    openlog("atd", LOG_PID, LOG_ATD);
 
     opterr = 0;
     errno = 0;
     run_as_daemon = 1;
     batch_interval = BATCH_INTERVAL_DEFAULT;
 
-    while ((c = getopt(argc, argv, "sdl:b:")) != EOF) {
+    while ((c = getopt(argc, argv, "sdl:b:n")) != EOF) {
 	switch (c) {
 	case 'l':
 	    if (sscanf(optarg, "%lf", &load_avg) != 1)
@@ -743,7 +955,10 @@ main(int argc, char *argv[])
 	    break;
 	case 'd':
 	    daemon_debug++;
-	    break;
+        /* go through another option*/
+   case 'n':
+        daemon_nofork++;
+        break;
 
 	case 's':
 	    run_as_daemon = 0;

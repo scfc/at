@@ -51,6 +51,14 @@
 #define PRIV_END while(0)
 #endif
 
+#ifdef WITH_PAM
+#include <security/pam_appl.h>
+static pam_handle_t *pamh = NULL;
+static const struct pam_conv conv = {
+       NULL
+};
+#endif
+
 /* Structures and unions */
 
 
@@ -109,17 +117,54 @@ user_in_file(const char *path, const char *name)
 int
 check_permission()
 {
-  uid_t uid = geteuid();
+  uid_t euid = geteuid(), uid=getuid(), egid=getegid(), gid=getgid();
   struct passwd *pentry;
   int    allow = 0, deny = 1;
 
-  if (uid == 0)
+  int   retcode = 0;
+  if (euid == 0)
     return 1;
 
-  if ((pentry = getpwuid(uid)) == NULL) {
+  if ((pentry = getpwuid(euid)) == NULL) {
     perror("Cannot access user database");
     exit(EXIT_FAILURE);
   }
+
+#ifdef  WITH_PAM
+/*
+ *  We must check if the atd daemon userid will be allowed to gain the job owner user's
+ *  credentials with PAM . If not, the user has been denied at(1) usage, eg. with pam_access.
+ */
+  setreuid(daemon_uid, daemon_uid);
+  setregid(daemon_gid, daemon_gid);
+
+# define PAM_FAIL_CHECK if (retcode != PAM_SUCCESS) { \
+                              fprintf(stderr,"PAM authentication failure: %s\n",pam_strerror(pamh, retcode)); \
+                 pam_close_session(pamh,PAM_SILENT); \
+                              pam_end(pamh, retcode); \
+                               setregid(gid,egid); \
+                               setreuid(uid,euid); \
+                               return(0); \
+                           }
+  retcode = pam_start("atd", pentry->pw_name, &conv, &pamh);
+  PAM_FAIL_CHECK;
+  retcode = pam_set_item(pamh, PAM_TTY, "atd");
+  PAM_FAIL_CHECK;
+  retcode = pam_acct_mgmt(pamh, PAM_SILENT);
+  PAM_FAIL_CHECK;
+  retcode = pam_open_session(pamh, PAM_SILENT);
+  PAM_FAIL_CHECK;
+  retcode = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
+  PAM_FAIL_CHECK;
+
+  pam_setcred(pamh, PAM_DELETE_CRED | PAM_SILENT );
+  pam_close_session(pamh,PAM_SILENT);
+  pam_end(pamh, PAM_ABORT);
+
+  setregid(gid,egid);
+  setreuid(uid,euid);
+
+#endif
 
   allow = user_in_file(ETCDIR "/at.allow", pentry->pw_name);
   if (allow==0 || allow==1)
