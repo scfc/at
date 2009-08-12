@@ -119,7 +119,7 @@ and to run a job at 1am tomorrow, you would do
 .B at 1am tomorrow.
 .PP
 The exact definition of the time specification can be found in
-.IR @prefix@/share/doc/at/timespec .
+.IR @prefix@/share/doc/at-@VERSION@/timespec.
 .PP
 For both
 .BR at " and " batch ,
