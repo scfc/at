@@ -12,6 +12,16 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .RB [ -mldbv ]
 .B TIME
 .br
+.B at
+.RB [ -V ]
+.RB [ -q
+.IR queue ]
+.RB [ -f
+.IR file ]
+.RB [ -mldbv ]
+.RB -t
+.IR time_arg
+.br
 .B "at -c"
 .I job
 .RI [ job... ]
@@ -32,8 +42,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 and
 .B batch
 read commands from standard input or a specified file which are to
-be executed at a later time, using
-.BR /bin/sh .
+be executed at a later time.
 .TP 8
 .BR at
 executes commands at a specified time.
@@ -227,6 +236,63 @@ Times displayed will be in the format "Thu Feb 20 14:50:00 1997".
 .B
 \-c
 cats the jobs listed on the command line to standard output.
+.TP
+.BI \-t " time_arg"
+Submit the job to be run at the time specified by the
+.BI time_arg
+option argument, which must have the same format as specified for the
+.BR touch(1)
+utility's
+.B \-t
+time option argument ([[CC]YY]MMDDhhmm).
+.SH ENVIRONMENT
+.P
+.TP 8
+.B SHELL
+The value of the SHELL environment variable at the time of
+.B at
+invocation will determine which shell is used to execute the
+.B at
+job commands. If SHELL is unset when
+.B at
+is invoked, the user's login shell will be used; otherwise,
+if SHELL is set when
+.B at
+is invoked, it must contain the path of a shell interpreter
+executable that will be used to run the commands at the specified time.
+.P
+.B at
+will record the values of
+environment variables present at time of
+.B at
+invocation. When the commands are run at the  specified time,
+.B at
+will restore these variables to their recorded values .
+These variables are excluded from this processing and are never
+set by
+.B at
+when the commands are run :
+.br
+.BI TERM,
+.BI DISPLAY,
+.BI SHELLOPTS,
+.BI _,
+.BI PPID,
+.BI BASH_VERSINFO,
+.BI EUID,
+.BI UID,
+.BI GROUPS.
+.br
+If the user submitting the
+.B at
+job is not the super-user, variables that alter the behaviour of the
+loader
+.BR ld.so(8),
+such as
+.B LD_LIBRARY_PATH
+, cannot be recorded and restored by
+.B at .
+.P
 .SH FILES
 .I @ATJBD@
 .br

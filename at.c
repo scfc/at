@@ -396,8 +396,9 @@ writefile(time_t runtimer, char queue)
 	    unsigned int i;
 	    for (i = 0; i < sizeof(no_export) / sizeof(no_export[0]); i++) {
 		export = export
-		    && (strncmp(*atenv, no_export[i],
-				(size_t) (eqp - *atenv)) != 0);
+		    && (  (((size_t) (eqp - *atenv)) != strlen(no_export[i]))
+			||(strncmp(*atenv, no_export[i],(size_t) (eqp - *atenv)) != 0)
+                );
 	    }
 	    eqp++;
 	}
@@ -750,6 +751,102 @@ mymalloc(size_t n)
     return p;
 }
 
+/* Handle POSIX.2 '-t' option :
+ *  Parses time string in "touch(1)" format:
+ *       [[CC]YY]MMDDhhmm[.ss]
+ *  and returns time_t .
+ */
+time_t
+t_option(char *s)
+{
+        time_t t=time(0L);
+        struct tm tm, tm_now=*localtime(&t);
+        int l;
+
+        if((s == 0L) || (*s == '\0'))
+        {
+	       return 0L;
+	    };
+	    memset(&tm,'\0',sizeof(tm));
+	    l = strnlen(s,15);
+	    switch(l)
+	    {
+	        case 15:
+	           /* CCYYMMDDhhmm.ss */
+	           sscanf(s, "%4d%2d%2d%2d%2d.%2d",
+	                  &tm.tm_year, &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min, &tm.tm_sec
+	                 );
+	           if(tm.tm_year)
+	               tm.tm_year -= 1900 ;
+
+	           break;
+
+	        case 13:
+	           /* YYMMDDhhmm.ss */
+	           sscanf(s, "%2d%2d%2d%2d%2d.%2d",
+	                  &tm.tm_year, &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min, &tm.tm_sec
+	                 );
+	           if(tm.tm_year)
+	               tm.tm_year += 100 ; /* Y2.1K+ bug! */
+
+	           break;
+
+	        case 11:
+	           /* MMDDhhmm.ss */
+	           sscanf(s, "%2d%2d%2d%2d.%2d",
+	                  &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min, &tm.tm_sec
+	                 );
+
+	           tm.tm_year = tm_now.tm_year;
+
+	           if(tm.tm_mon)
+	               tm.tm_mon -= 1;
+	           break;
+
+	        case 12:
+	           /* CCYYMMDDhhmm */
+	           sscanf(s, "%4d%2d%2d%2d%2d",
+	                  &tm.tm_year, &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min
+	                 );
+	           if(tm.tm_year)
+	               tm.tm_year -= 1900 ;
+	           break;
+
+	        case 10:
+	           /* YYMMDDhhmm */
+	           sscanf(s, "%2d%2d%2d%2d%2d",
+	                  &tm.tm_year, &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min
+	                 );
+	           if(tm.tm_year)
+	               tm.tm_year += 100 ; /* Y2.1K+ bug! */
+	           break;
+
+	        case  8:
+	           /* MMDDhhmm */
+	           sscanf(s, "%2d%2d%2d%2d",
+	                  &tm.tm_mon, &tm.tm_mday, &tm.tm_hour, &tm.tm_min
+	                 );
+	           if( tm.tm_mday )
+	               tm.tm_year = tm_now.tm_year;
+	           break;
+	        default:
+	           break;
+	        }
+
+	        if( tm.tm_mon )
+	           tm.tm_mon -= 1;
+
+	        if( tm.tm_mday )
+	        {
+		       tm.tm_isdst = -1;
+		       t = mktime(&tm);
+		       return t;
+		} else
+		       return 0L;
+}
+
+
+
 int
 main(int argc, char **argv)
 {
@@ -759,9 +856,9 @@ main(int argc, char **argv)
     char *pgm;
 
     int program = AT;		/* our default program */
-    char *options = "q:f:MmvldhVc";	/* default options for at */
+    char *options = "q:f:MmvldhVct:";	/* default options for at */
     int disp_version = 0;
-    time_t timer;
+    time_t timer=0L;
     struct passwd *pwe;
     struct group *ge;
 
@@ -865,6 +962,10 @@ main(int argc, char **argv)
 	    options = "";
 	    break;
 
+	case 't':
+	    timer = t_option(optarg);
+	    break;
+
 	default:
 	    usage();
 	    break;
@@ -921,10 +1022,12 @@ main(int argc, char **argv)
 	break;
 
     case AT:
-	if (argc > optind) {
-	    timer = parsetime(argc - optind, argv + optind);
-	} else {
-	    timer = 0;
+	if (timer == 0) {
+	      if (argc > optind) {
+	          timer = parsetime(argc - optind, argv + optind);
+	       } else {
+	          timer = 0;
+               }
 	}
 
 	if (timer == 0) {
@@ -953,10 +1056,12 @@ main(int argc, char **argv)
 	else
 	    queue = DEFAULT_BATCH_QUEUE;
 
-	if (argc > optind)
-	    timer = parsetime(argc, argv);
-	else
-	    timer = time(NULL);
+	if( timer == 0L )  {
+	  if (argc > optind)
+            timer = parsetime(argc, argv);
+            else
+          timer = time(NULL);
+        }
 
 	if (atverify) {
 	    struct tm *tm = localtime(&timer);
