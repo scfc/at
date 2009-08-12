@@ -133,7 +133,6 @@ static void alarmc(int signo);
 static char *cwdname(void);
 static void writefile(time_t runtimer, char queue);
 static void list_jobs(void);
-static time_t parsetimespec(const char *spec);
 
 /* Signal catching functions */
 
@@ -706,36 +705,6 @@ process_jobs(int argc, char **argv, int what)
     }
     return rc;
 }				/* delete_jobs */
-
-static time_t parsetimespec(const char *spec)
-{
-    int len = strlen(spec);
-    struct tm exectm;
-    const char *dot;
-    const char *pos = spec;
-
-    exectm = *localtime( time( NULL ) );
-
-    dot = strrchr(spec, '.');
-    if (dot) {
-	len -= 3;
-    }
-
-    if (len == 12) {
-	pos += 4;
-	len -= 4;
-	/* first 4 digits to year */
-    } else if (len == 10) {
-	pos += 2;
-	len -= 2;
-	/* first 2 digits become last 2 digits of year.  If in past, +100 to year */
-    }
-    if (len == 8)
-	/* year is current year unless date would be in past, if so, next year */
-	;
-    else
-	return 0; /* corrupt */
-}
 
 /* Global functions */
 
