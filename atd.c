@@ -224,6 +224,69 @@ myfork()
 #define ATD_MAIL_NAME    "mailx"
 #endif
 
+#ifdef WITH_SELINUX
+static int set_selinux_context(const char *name, const char *filename) {
+	security_context_t user_context=NULL;
+	security_context_t  file_context=NULL;
+	struct av_decision avd;
+	int retval=-1;
+	char *seuser=NULL;
+	char *level=NULL;
+
+	if (getseuserbyname(name, &seuser, &level) == 0) {
+		retval=get_default_context_with_level(seuser, level, NULL, &user_context);
+		free(seuser);
+		free(level);
+		if (retval) {
+			if (security_getenforce()==1) {
+				perr("execle: couldn't get security context for user %s\n", name);
+			} else {
+				syslog(LOG_ERR, "execle: couldn't get security context for user %s\n", name);
+				return -1;
+			}
+		}
+	}
+
+	/*
+	 * Since crontab files are not directly executed,
+	 * crond must ensure that the crontab file has
+	 * a context that is appropriate for the context of
+	 * the user cron job.  It performs an entrypoint
+	 * permission check for this purpose.
+	 */
+	if (fgetfilecon(STDIN_FILENO, &file_context) < 0)
+		perr("fgetfilecon FAILED %s", filename);
+
+	retval = security_compute_av(user_context,
+				     file_context,
+				     SECCLASS_FILE,
+				     FILE__ENTRYPOINT,
+				     &avd);
+	freecon(file_context);
+	if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
+	        if (security_getenforce()==1) {
+			perr("Not allowed to set exec context to %s for user  %s\n", user_context,name);
+                } else {
+			syslog(LOG_ERR, "Not allowed to set exec context to %s for user  %s\n", user_context,name);
+			retval = -1;
+			goto err;
+                }
+	}
+	if (setexeccon(user_context) < 0) {
+		if (security_getenforce()==1) {
+			perr("Could not set exec context to %s for user  %s\n", user_context,name);
+			retval = -1;
+		} else {
+			syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,name);
+		}
+	}
+ err:
+	freecon(user_context);
+	return 0;
+}
+#endif
+
+
 static void
 run_file(const char *filename, uid_t uid, gid_t gid)
 {
@@ -486,61 +549,8 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 #ifdef WITH_SELINUX
            if (selinux_enabled>0) {
-          security_context_t user_context=NULL;
-               security_context_t  file_context=NULL;
-               int retval=0;
-               struct av_decision avd;
-               char *seuser=NULL;
-               char *level=NULL;
-
-               if (getseuserbyname(pentry->pw_name, &seuser, &level) == 0) {
-                  retval=get_default_context_with_level(seuser, level, NULL, &user_context);
-                  free(seuser);
-                  free(level);
-                  if (retval) {
-                      if (security_getenforce()==1) {
-                          perr("execle: couldn't get security context for user %s\n", pentry->pw_name);
-                      } else {
-                          syslog(LOG_ERR, "execle: couldn't get security context for user %s\n", pentry->pw_name);
-                          goto out;
-                      }
-                  }
-               }
-
-             /*
-              * Since crontab files are not directly executed,
-              * crond must ensure that the crontab file has
-              * a context that is appropriate for the context of
-              * the user cron job.  It performs an entrypoint
-              * permission check for this purpose.
-              */
-        if (fgetfilecon(STDIN_FILENO, &file_context) < 0) {
-                     if (security_getenforce() > 0) {
-                         perr("fgetfilecon FAILED %s", filename);
-                     } else {
-                         syslog(LOG_ERR, "fgetfilecon FAILED %s", filename);
-                         goto out;
-                     }
-             }
-             retval = security_compute_av(user_context,
-                                          file_context,
-                                          SECCLASS_FILE,
-                                          FILE__ENTRYPOINT,
-                                          &avd);
-             freecon(file_context);
-             if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
-               if (security_getenforce()==1)
-                 perr("Not allowed to set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-             }
-
-             if (setexeccon(user_context) < 0) {
-               if (security_getenforce()==1) {
-                 perr("Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-               } else {
-                 syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-               }
-             }
-             freecon(user_context);
+               if (set_selinux_context(pentry->pw_name, filename) < 0)
+                   perr("SELinux Failed to set context\n");
            }
 #endif
 
@@ -654,47 +664,8 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 #ifdef WITH_SELINUX
            if (selinux_enabled>0) {
-             security_context_t user_context=NULL;
-             security_context_t  file_context=NULL;
-             int retval=0;
-             struct av_decision avd;
-
-             if (get_default_context(pentry->pw_name, NULL, &user_context))
-               perr("execle: couldn't get security context for user %s\n", pentry->pw_name);
-             /*
-              * Since crontab files are not directly executed,
-              * crond must ensure that the crontab file has
-              * a context that is appropriate for the context of
-              * the user cron job.  It performs an entrypoint
-              * permission check for this purpose.
-              */
-             if (fgetfilecon(STDIN_FILENO, &file_context) < 0)
-               perr("fgetfilecon FAILED %s", filename);
-
-             retval = security_compute_av(user_context,
-                                          file_context,
-                                          SECCLASS_FILE,
-                                          FILE__ENTRYPOINT,
-                                          &avd);
-             freecon(file_context);
-             if (retval || ((FILE__ENTRYPOINT & avd.allowed) != FILE__ENTRYPOINT)) {
-           if (security_getenforce()==1) {
-                    perr("Not allowed to set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-                } else {
-                    syslog(LOG_ERR, "Not allowed to set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-                    goto out;
-                }
-        }
-
-             if (setexeccon(user_context) < 0) {
-               if (security_getenforce()==1) {
-                 perr("Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-               } else {
-                 syslog(LOG_ERR, "Could not set exec context to %s for user  %s\n", user_context,pentry->pw_name);
-               }
-             }
-        out:
-                freecon(user_context);
+               if (set_selinux_context(pentry->pw_name, filename) < 0)
+                   perr("SELinux Failed to set context\n");
            }
 #endif
             execl(ATD_MAIL_PROGRAM, ATD_MAIL_NAME, mailname, (char *) NULL);
