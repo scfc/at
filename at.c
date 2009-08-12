@@ -92,6 +92,7 @@
 #define SIZE 255
 
 #define TIMEFORMAT_POSIX	"%a %b %e %T %Y"
+#define TIMEFORMAT_ISO		"%Y-%m-%d %H:%M"
 #define TIMESIZE	50
 
 enum {
@@ -490,7 +491,15 @@ writefile(time_t runtimer, char queue)
 
     runtime = localtime(&runtimer);
 
-    strftime(timestr, TIMESIZE, TIMEFORMAT_POSIX, runtime);
+    /* We only use the sick POSIX time format if POSIXLY_CORRECT
+       is set.  Otherwise, we use ISO format.
+     */
+
+    if (getenv("POSIXLY_CORRECT") != NULL) {
+	strftime(timestr, TIMESIZE, TIMEFORMAT_POSIX, runtime);
+    } else {
+	strftime(timestr, TIMESIZE, TIMEFORMAT_ISO, runtime);
+    }
     fprintf(stderr, "job %ld at %s\n", jobno, timestr);
 
     /* Signal atd, if present. Usual precautions taken... */
@@ -588,8 +597,11 @@ list_jobs(void)
 	runtimer = 60 * (time_t) ctm;
 	runtime = localtime(&runtimer);
 
-	strftime(timestr, TIMESIZE, TIMEFORMAT_POSIX, runtime);
-
+	if (getenv("POSIXLY_CORRECT") != NULL) {
+	    strftime(timestr, TIMESIZE, TIMEFORMAT_POSIX, runtime);
+	} else {
+	    strftime(timestr, TIMESIZE, TIMEFORMAT_ISO, runtime);
+	}
 	if ((pwd = getpwuid(buf.st_uid)))
 	  printf("%ld\t%s %c %s\n", jobno, timestr, queue, pwd->pw_name);
 	else
