@@ -136,7 +136,7 @@ clean:
 
 distclean: clean 
 	rm -rf at.1 atd.8 atrun.8 config.cache atrun batch config.h \
-		config.status Makefile debian/tmp config.log build
+		config.status Makefile config.log build
 
 checkin: $(DIST)
 	test -d RCS && for a in $(DIST); do ci -l $$a ; done
