@@ -208,7 +208,7 @@ nextjob()
 	fscanf(fid, "%5lx", &jobno);
 	rewind(fid);
     } else {
-	fid = fopen(ATJOB_DIR "/.SEQ", "w");
+	fid = fopen(LFILE, "w");
 	if (fid == NULL)
 	    return EOF;
     }
