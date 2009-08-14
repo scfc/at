@@ -42,8 +42,9 @@ binary-arch: build-stamp
 	dh_installdocs README
 	# Install everything:
 	$(MAKE) IROOT=$(CURDIR)/debian/at mandir=/usr/share/man docdir=/usr/share/doc install
-	# Remove (duplicate) copyright:
+	# Remove (duplicate) changelog and copyright:
 	rm debian/at/usr/share/doc/at/Copyright
+	rm debian/at/usr/share/doc/at/ChangeLog
 	# TODO: Take care of those:
 	rm -f debian/at/var/spool/cron/atjobs/.SEQ
 	chown daemon:daemon debian/at/var/spool/cron/atjobs debian/at/var/spool/cron/atspool
