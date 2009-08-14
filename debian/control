@@ -10,7 +10,8 @@ Vcs-Git: git://git.debian.org/git/collab-maint/at.git
 
 Package: at
 Architecture: any
-Depends: ${shlibs:Depends}, exim4 | mail-transport-agent, lsb-base (>= 3.0-10)
+Depends: ${shlibs:Depends}, lsb-base (>= 3.0-10)
+Recommends: exim4 | mail-transport-agent
 Description: Delayed job execution and batch processing
  At and batch read shell commands from standard input
  storing them as a job to be scheduled for execution in the
