@@ -1,4 +1,3 @@
-.Id $Id$
 .TH AT 1 "Nov 1996" local "Linux Programmer's Manual"
 .SH NAME
 at, batch, atq, atrm \- queue, examine or delete jobs for later execution

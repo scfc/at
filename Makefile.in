@@ -1,5 +1,3 @@
-# $Id$
-
 VERSION         = @VERSION@
 srcdir 		= @srcdir@
 VPATH 		= $(srcdir)

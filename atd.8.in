@@ -1,4 +1,3 @@
-.Id $Id$
 .TH ATD 8 "Mar 1997" local "Linux Programmer's Manual"
 .SH NAME
 atd \- run jobs queued for later execution
