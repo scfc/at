@@ -1,6 +1,6 @@
 Source: at
 Section: admin
-Priority: important
+Priority: standard
 Maintainer: Ansgar Burchardt <ansgar@43-1.org>
 Uploaders: Cyril Brulebois <kibi@debian.org>
 Standards-Version: 3.8.2
