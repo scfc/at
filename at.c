@@ -851,7 +851,8 @@ main(int argc, char **argv)
 
     if (disp_version) {
 	fprintf(stderr, "at version " VERSION "\n"
-	   "Bug reports to: rmurray@debian.org (Ryan Murray)\n");
+	   "Please report bugs to the Debian bug tracking system (http://bugs.debian.org/)\n"
+	   "or contact the maintainers (at@packages.debian.org).\n");
 	exit(EXIT_SUCCESS);
     }
 
