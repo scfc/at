@@ -2,6 +2,11 @@
 
 build: build-stamp
 build-stamp:
+	[ -f config.sub.ori ] || mv config.sub config.sub.ori
+	[ -f config.guess.ori ] || mv config.guess config.guess.ori
+	ln -sf /usr/share/misc/config.sub .
+	ln -sf /usr/share/misc/config.guess .
+
 	SENDMAIL=/usr/sbin/sendmail \
 	./configure --prefix=/usr \
 		--with-loadavg_mx=1.5 \
@@ -12,6 +17,8 @@ build-stamp:
 
 clean:
 	[ ! -f Makefile ] || $(MAKE) distclean
+	[ ! -f config.sub.ori ] || mv -f config.sub.ori config.sub
+	[ ! -f config.guess.ori ] || mv -f config.guess.ori config.guess
 	dh_clean
 
 binary-indep:
