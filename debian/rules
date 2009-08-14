@@ -1,5 +1,19 @@
 #!/usr/bin/make -f
 
+confflags = --prefix=/usr --with-loadavg_mx=1.5 \
+            --with-jobdir=/var/spool/cron/atjobs \
+            --with-atspool=/var/spool/cron/atspool \
+            SENDMAIL=/usr/sbin/sendmail
+
+export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
+  confflags += --build $(DEB_HOST_GNU_TYPE)
+else
+  confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
+endif
+
 build: build-stamp
 build-stamp:
 	[ -f config.sub.ori ] || mv config.sub config.sub.ori
@@ -7,11 +21,7 @@ build-stamp:
 	ln -sf /usr/share/misc/config.sub .
 	ln -sf /usr/share/misc/config.guess .
 
-	SENDMAIL=/usr/sbin/sendmail \
-	./configure --prefix=/usr \
-		--with-loadavg_mx=1.5 \
-		--with-jobdir=/var/spool/cron/atjobs \
-		--with-atspool=/var/spool/cron/atspool
+	./configure $(confflags)
 	$(MAKE)
 	touch $@
 
