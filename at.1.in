@@ -1,4 +1,3 @@
-.Id $Id$
 .TH AT 1 "Nov 1996" local "Linux Programmer's Manual"
 .SH NAME
 at, batch, atq, atrm \- queue, examine or delete jobs for later execution
@@ -10,7 +9,17 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .RB [ -f
 .IR file ]
 .RB [ -mldbv ]
-.B TIME
+.IR timespec ...
+.br
+.B at
+.RB [ -V ]
+.RB [ -q
+.IR queue ]
+.RB [ -f
+.IR file ]
+.RB [ -mkdbv ]
+.RB [ -t
+.IR time ]
 .br
 .B "at -c"
 .I job
@@ -169,7 +178,7 @@ default configuration.
 .SH OPTIONS
 .TP 8
 .B -V
-prints the version number to standard error.
+prints the version number to standard error and exit successfully.
 .TP 8
 .BI \-q " queue"
 uses the specified queue.
@@ -207,8 +216,13 @@ output.
 .TP 8
 .BI \-f " file"
 Reads the job from
-.BI file
+.I file
 rather than standard input.
+.TP 8
+.BI \-t " time"
+run the job at
+.IR time ,
+given in the format [[CC]YY]MMDDhhmm[.ss]
 .TP 8
 .B \-l
 Is an alias for

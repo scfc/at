@@ -78,7 +78,7 @@
 #include "panic.h"
 #include "parsetime.h"
 #include "perm.h"
-
+#include "posixtm.h"
 #include "privs.h"
 
 /* Macros */
@@ -108,7 +108,6 @@ gid_t daemon_gid = (gid_t) - 3;
 
 /* File scope variables */
 
-static const char *svnid = "$Id$";
 char *no_export[] =
 {
     "TERM", "DISPLAY", "_", "SHELLOPTS", "BASH_VERSINFO", "EUID", "GROUPS", "PPID", "UID"
@@ -133,7 +132,6 @@ static void alarmc(int signo);
 static char *cwdname(void);
 static void writefile(time_t runtimer, char queue);
 static void list_jobs(void);
-static time_t parsetimespec(const char *spec);
 
 /* Signal catching functions */
 
@@ -209,7 +207,7 @@ nextjob()
 	fscanf(fid, "%5lx", &jobno);
 	rewind(fid);
     } else {
-	fid = fopen(ATJOB_DIR "/.SEQ", "w");
+	fid = fopen(LFILE, "w");
 	if (fid == NULL)
 	    return EOF;
     }
@@ -707,36 +705,6 @@ process_jobs(int argc, char **argv, int what)
     return rc;
 }				/* delete_jobs */
 
-static time_t parsetimespec(const char *spec)
-{
-    int len = strlen(spec);
-    struct tm exectm;
-    const char *dot;
-    const char *pos = spec;
-
-    exectm = *localtime( time( NULL ) );
-
-    dot = strrchr(spec, '.');
-    if (dot) {
-	len -= 3;
-    }
-
-    if (len == 12) {
-	pos += 4;
-	len -= 4;
-	/* first 4 digits to year */
-    } else if (len == 10) {
-	pos += 2;
-	len -= 2;
-	/* first 2 digits become last 2 digits of year.  If in past, +100 to year */
-    }
-    if (len == 8)
-	/* year is current year unless date would be in past, if so, next year */
-	;
-    else
-	return 0; /* corrupt */
-}
-
 /* Global functions */
 
 void *
@@ -759,9 +727,9 @@ main(int argc, char **argv)
     char *pgm;
 
     int program = AT;		/* our default program */
-    char *options = "q:f:MmvldhVc";	/* default options for at */
+    char *options = "q:f:MmvldhVct:";	/* default options for at */
     int disp_version = 0;
-    time_t timer;
+    time_t timer = 0;
     struct passwd *pwe;
     struct group *ge;
 
@@ -865,6 +833,15 @@ main(int argc, char **argv)
 	    options = "";
 	    break;
 
+	case 't':
+	    if (!posixtime(&timer, optarg, PDS_LEADING_YEAR | PDS_CENTURY | PDS_SECONDS)) {
+		fprintf(stderr, "invalid date format: %s\n", optarg);
+		exit(EXIT_FAILURE);
+	    }
+	    /* drop seconds */
+	    timer -= timer % 60;
+	    break;
+
 	default:
 	    usage();
 	    break;
@@ -872,9 +849,12 @@ main(int argc, char **argv)
     /* end of options eating
      */
 
-    if (disp_version)
+    if (disp_version) {
 	fprintf(stderr, "at version " VERSION "\n"
-	   "Bug reports to: rmurray@debian.org (Ryan Murray)\n");
+	   "Please report bugs to the Debian bug tracking system (http://bugs.debian.org/)\n"
+	   "or contact the maintainers (at@packages.debian.org).\n");
+	exit(EXIT_SUCCESS);
+    }
 
     /* select our program
      */
@@ -922,9 +902,11 @@ main(int argc, char **argv)
 
     case AT:
 	if (argc > optind) {
+	    if (timer != 0) {
+                fprintf(stderr, "Cannot give time two times.\n");
+                exit(EXIT_FAILURE);
+            }
 	    timer = parsetime(argc - optind, argv + optind);
-	} else {
-	    timer = 0;
 	}
 
 	if (timer == 0) {
@@ -953,9 +935,13 @@ main(int argc, char **argv)
 	else
 	    queue = DEFAULT_BATCH_QUEUE;
 
-	if (argc > optind)
+	if (argc > optind) {
+            if (timer != 0) {
+                fprintf(stderr, "Cannot give time two times.\n");
+                exit(EXIT_FAILURE);
+            }
 	    timer = parsetime(argc, argv);
-	else
+        } else if (timer == 0)
 	    timer = time(NULL);
 
 	if (atverify) {

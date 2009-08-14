@@ -46,8 +46,6 @@
 
 /* File scope variables */
 
-static const char *svnid = "$Id$";
-
 /* External variables */
 
 /* Global functions */
@@ -58,8 +56,11 @@ panic(char *a)
 /* Something fatal has happened, print error message and exit.
  */
     fprintf(stderr, "%s: %s\n", namep, a);
-    if (fcreated)
+    if (fcreated) {
+	setregid(real_gid, effective_gid);
 	unlink(atfile);
+	setregid(effective_gid, real_gid);
+    }
 
     exit(EXIT_FAILURE);
 }
@@ -91,7 +92,8 @@ usage(void)
 {
 /* Print usage and exit.
  */
-    fprintf(stderr, "Usage: at [-V] [-q x] [-f file] [-mldbv] time\n"
+    fprintf(stderr, "Usage: at [-V] [-q x] [-f file] [-mldbv] timespec ...\n"
+            "       at [-V] [-q x] [-f file] [-mldbv] -t time\n"
     	    "       at -c job ...\n"
 	    "       atq [-V] [-q x]\n"
 	    "       atrm [-V] job ...\n"

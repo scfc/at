@@ -56,7 +56,6 @@
 
 /* File scope variables */
 
-static const char *svnid = "$Id$";
 
 /* Function declarations */
 

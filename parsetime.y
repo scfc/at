@@ -4,10 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 #include "parsetime.h"
+#include "panic.h"
 
 #define YYDEBUG 1
 
-static const char *svnid = "$Id$";
 struct tm exectm;
 static int isgmt;
 static int yearspec;

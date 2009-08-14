@@ -49,7 +49,9 @@ If you happen to have an older version of at around, make sure to delete
 it (it might lurk in /bin, for example).
 
 Bug reports to:
-	rmurray@debian.org
+	http://bugs.debian.org/ (Debian bug tracking system)
+	or
+	at@packages.debian.org (Debian at package maintainers)
 
 If at all possible, I'd appreciate you telling me which version you
 found a bug in; run at -V to find out which one.

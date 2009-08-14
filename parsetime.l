@@ -5,7 +5,6 @@
 #include "y.tab.h"
 #include "parsetime.h"
 
-static const char *svnid = "$Id$";
 char *last_token = NULL;
 char **my_argv;
 

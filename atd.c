@@ -99,7 +99,6 @@ gid_t daemon_gid = (gid_t) - 3;
 /* File scope variables */
 
 static char *namep;
-static const char *svnid = "$Id$";
 static double load_avg = LOADAVG_MX;
 static time_t now;
 static time_t last_chg;
@@ -316,7 +315,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	     "aborting", jobno, filename);
 
     if (buf.st_nlink > 2) {
-	perr("Someboy is trying to run a linked script for job %8lu (%.500s)",
+	perr("Somebody is trying to run a linked script for job %8lu (%.500s)",
 	     jobno, filename);
     }
     if ((fflags = fcntl(fd_in, F_GETFD)) < 0)
@@ -620,7 +619,7 @@ run_loop()
 	nothing_to_do = 0;
 
 	/* There's a job for later.  Note its execution time if it's
-	 * the earlierst so far.
+	 * the earliest so far.
 	 */
 	if (run_time > now) {
 	    if (next_job > run_time) {
@@ -680,10 +679,10 @@ run_loop()
 int
 main(int argc, char *argv[])
 {
-/* Browse through  ATJOB_DIR, checking all the jobfiles wether they should
+/* Browse through ATJOB_DIR, checking all the jobfiles whether they should
  * be executed and or deleted. The queue is coded into the first byte of
- * the job filename, the date (in minutes since Eon) as a hex number in the
- * following eight bytes, followed by a dot and a serial number.  A file
+ * the job filename, the next 5 bytes encode the serial number in hex, and
+ * the final 8 bytes encode the date (minutes since Eon) in hex.  A file
  * which has not been executed yet is denoted by its execute - bit set.
  * For those files which are to be executed, run_file() is called, which forks
  * off a child which takes care of I/O redirection, forks off another child
