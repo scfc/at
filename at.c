@@ -850,9 +850,11 @@ main(int argc, char **argv)
     /* end of options eating
      */
 
-    if (disp_version)
+    if (disp_version) {
 	fprintf(stderr, "at version " VERSION "\n"
 	   "Bug reports to: rmurray@debian.org (Ryan Murray)\n");
+	exit(EXIT_SUCCESS);
+    }
 
     /* select our program
      */
