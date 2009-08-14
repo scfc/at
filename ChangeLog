@@ -57,3 +57,32 @@ at 3.1.8:
 	Fixed bug where 'next monday' could be a synonym for today
 	Fixed spelling bug in parser (misspelled February)
 	Removed obsolete '-v' flag from atq
+
+at 3.1.11:
+
+  Ansgar Burchardt (15):
+      correct comment in atd.c
+      rc: do not set -e
+      panic.c: switch permissions before unlink
+      update configure script
+      update config.guess and config.sub
+      Makefile.in: do not remove debian/tmp
+      at.c: add -t option
+      document new -t option
+      remove unused function parsetimespec
+      at.c: exit successfully when -V is given
+      fix some typos
+      update contact address
+      update copyright information
+      set version to 3.1.11
+      remove $Id$ tags
+
+  Cyril Brulebois (7):
+      Make Copyright a regular file.
+      Copy debian/rc to rc, it's not Debian-specific.
+      Copy debian/pam to pam.conf, it's not Debian-specific.
+      Remove the debian/ directory.
+      Fix LFILE/ATJOB_DIR usage in nextjob().
+      Fix missing panic.h include.
+      Remove unused "static const char *svnid"
+
