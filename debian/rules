@@ -71,6 +71,7 @@ binary-arch: build-stamp
 	dh_compress
 	dh_installdeb
 	dh_shlibdeps
+	dh_strip
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
