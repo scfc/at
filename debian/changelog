@@ -1,3 +1,62 @@
+at (3.1.11-1) unstable; urgency=low
+
+  * New "upstream" release:
+    + correct comment in atd.c (Closes: #372640)
+    + rc: do not set -e (Closes: #445489)
+    + panic.c: switch permissions before unlink (Closes: #518456, #538702)
+    + at.c: add -t option (Closes: #515262)
+    + at.c: exit successfully when -V is given (Closes: #292657)
+    + fix some typos (Closes: #491131)
+    + set version to 3.1.11 (Closes: #484515)
+
+  [ Cyril Brulebois ]
+  * Mark old changelog entries using “Old Changelog”.
+  * debian/rules:
+    + Stop setting SHELL to bash.
+    + Get rid of unneeded checkroot target.
+    + Get rid of unneeded local variables.
+    + Get rid of lines that are commented out.
+    + Get rid of obsolete source and diff targets.
+    + Get rid of unneeded dist and dsc targets.
+    + Get rid of unneeded variables.
+    + Use dh_install to install the config files.
+    + Call some dh_* tools at the end of the build.
+      - Call dh_md5sum (Closes: #309773)
+    + Call dh_install{changelogs,doc} to install docs.
+    + Use dh_installman/dh_compress to handle the manpages.
+    + Call dh_clean.
+    + Simplify calling configure.
+    + Use a build-stamp target.
+    + Use proper cleaning.
+    + Use “sed -i”, that's shorter.
+    + Get rid of the copyright, rules got rewritten.
+    + No longer make distclean errors.
+    + Remove additional removals, dh_clean will do that.
+    + Set SENDMAIL= for ./configure instead of using sed
+  * debian/control:
+    + Build-Depend on debhelper (>= 7).
+    + Update Maintainer/Uploaders according to ITA (Closes: #541013).
+    + Add Vcs-{Browser,Git} pointing to collab-maint/at.git
+  * Remove debian/conffiles, debhelper takes care of that.
+
+  [ Ansgar Burchardt ]
+  * debian/rules:
+    + use config.{guess,sub} from autotools-dev (Closes: #536294)
+    + call configure as documented in autotools-dev (Closes: #480825)
+    + call dh_strip
+    + remove duplicate ChangeLog
+  * debian/control:
+    + do no longer build-dep on ssmtp | mail-transport-agent
+      (Closes: #524187)
+    + downgrade dependency on mail-transport-agent to recommends
+      (Closes: #468326)
+    + downgrade Priority to standard
+    + bump Standards-Version to 3.8.2
+  * debian/prerm: do not ignore errors
+  * Copy updated debian/copyright from upstream
+
+ -- Ansgar Burchardt <ansgar@43-1.org>  Fri, 14 Aug 2009 20:24:03 +0200
+
 at (3.1.10.2) unstable; urgency=low
 
   * Non-maintainer upload.
