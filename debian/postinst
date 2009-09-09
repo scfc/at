@@ -7,9 +7,7 @@ if [ "$1" = "configure" ]; then
 	chmod 600 $SEQFILE
 	chown daemon:daemon $SEQFILE
     fi
-    if [ -z "$2" ]; then
-	update-rc.d atd defaults 89 11 > /dev/null
-    else
+    if [ -n "$2" ]; then
 	if dpkg --compare-versions "$2" lt 3.1.9; then
 	    chown daemon:daemon /var/spool/cron/atjobs /var/spool/cron/atspool /var/spool/cron/atjobs/.SEQ
 	    chmod 1770 /var/spool/cron/atjobs /var/spool/cron/atspool 
@@ -28,4 +26,4 @@ if [ "$1" = "configure" ]; then
     fi
 fi
 
-invoke-rc.d atd start
+#DEBHELPER#
