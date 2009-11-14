@@ -486,8 +486,9 @@ parsetime(int argc, char **argv)
     if (yyparse() == 0) {
 	if (time_only)
 	{
-	    if ((exectm.tm_hour < currtm.tm_hour) ||
-		((exectm.tm_hour == currtm.tm_hour &&
+	    if (exectm.tm_mday == currtm.tm_mday &&
+		(exectm.tm_hour < currtm.tm_hour ||
+		(exectm.tm_hour == currtm.tm_hour &&
 		    exectm.tm_min <= currtm.tm_min)))
 		exectm.tm_mday++;
 	} 
