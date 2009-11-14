@@ -536,6 +536,12 @@ main(int argc, char **argv)
     return retval;
 }
 
+void
+panic(char *a)
+{
+    fputs(a, stderr);
+    exit(EXIT_FAILURE);
+}
 #endif
 
 int yyerror(char *s)
