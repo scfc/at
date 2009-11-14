@@ -1,4 +1,4 @@
-.TH ATD 8 "Mar 1997" local "Linux Programmer's Manual"
+.TH ATD 8 2009-11-14
 .SH NAME
 atd \- run jobs queued for later execution
 .SH SYNOPSIS
@@ -8,6 +8,7 @@ atd \- run jobs queued for later execution
 .RB [ -b
 .IR batch_interval ]
 .RB [ -d ]
+.RB [ -f ]
 .RB [ -s ]
 .SH DESCRIPTION
 .B atd
@@ -31,6 +32,13 @@ batch jobs (60 default).
 .B -d
 Debug; print error messages to standard error instead of using
 .BR syslog(3) .
+This option also implies
+.BR -f .
+.TP
+.B -f
+Run
+.BR atd
+in the foreground.
 .TP 8
 .B -s
 Process the at/batch queue only once.

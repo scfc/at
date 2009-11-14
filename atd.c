@@ -722,7 +722,7 @@ main(int argc, char *argv[])
     run_as_daemon = 1;
     batch_interval = BATCH_INTERVAL_DEFAULT;
 
-    while ((c = getopt(argc, argv, "sdl:b:")) != EOF) {
+    while ((c = getopt(argc, argv, "sdl:b:f")) != EOF) {
 	switch (c) {
 	case 'l':
 	    if (sscanf(optarg, "%lf", &load_avg) != 1)
@@ -737,6 +737,11 @@ main(int argc, char *argv[])
 	    break;
 	case 'd':
 	    daemon_debug++;
+	    daemon_foreground++;
+	    break;
+
+	case 'f':
+	    daemon_foreground++;
 	    break;
 
 	case 's':
