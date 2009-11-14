@@ -2,7 +2,6 @@ Source: at
 Section: admin
 Priority: standard
 Maintainer: Ansgar Burchardt <ansgar@43-1.org>
-Uploaders: Cyril Brulebois <kibi@debian.org>
 Standards-Version: 3.8.2
 Build-Depends: debhelper (>= 7), autotools-dev, bison, flex, libpam0g-dev
 Vcs-Browser: http://git.debian.org/?p=collab-maint/at.git
