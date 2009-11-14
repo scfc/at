@@ -492,8 +492,9 @@ parsetime(int argc, char **argv)
 		exectm.tm_mday++;
 	} 
 	else if (!yearspec) {
-	    if ((exectm.tm_mon < currtm.tm_mon) ||
-	        ((exectm.tm_mon == currtm.tm_mon &&
+	    if (exectm.tm_year == currtm.tm_year &&
+		(exectm.tm_mon < currtm.tm_mon ||
+	        (exectm.tm_mon == currtm.tm_mon &&
 		     exectm.tm_mday < currtm.tm_mday)))
 		exectm.tm_year++;
 	}
