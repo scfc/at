@@ -1,4 +1,4 @@
-.TH AT 1 "Nov 1996" local "Linux Programmer's Manual"
+.TH AT 1 2009-11-14
 .SH NAME
 at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .SH SYNOPSIS
@@ -128,11 +128,24 @@ with the
 .B -f
 option and executed.
 The working directory, the environment (except for the variables
+.BR BASH_VERSINFO ,
+.BR DISPLAY ,
+.BR EUID ,
+.BR GROUPS ,
+.BR SHELLOPTS ,
 .BR TERM ,
-.BR DISPLAY
+.BR UID ,
 and
 .BR _ )
 and the umask are retained from the time of invocation.
+
+As
+.BR at
+is currently implemented as a setuid program, other environment variables (e.g.
+.BR LD_LIBRARY_PATH " or " LD_PRELOAD )
+are also not exported.  This may change in the future.  As a workaround,
+set these variables explicitly in your job.
+
 An
 .BR "at " \-
 or
