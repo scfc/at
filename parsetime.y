@@ -211,7 +211,7 @@ date            : month_name day_number
 			}
 			exectm.tm_year = ynum ;
 
-			if (   dnum < 0
+			if (   dnum < 1
 			    || ((mnum ==  1 || mnum ==  3 || mnum ==  5 ||
 			         mnum ==  7 || mnum ==  8 || mnum == 10 ||
 				 mnum == 12) && dnum > 31)
@@ -255,7 +255,7 @@ date            : month_name day_number
 			}
 			exectm.tm_year = ynum ;
 
-			if (   dnum < 0
+			if (   dnum < 1
 			    || ((mnum ==  1 || mnum ==  3 || mnum ==  5 ||
 			         mnum ==  7 || mnum ==  8 || mnum == 10 ||
 				 mnum == 12) && dnum > 31)
@@ -371,7 +371,7 @@ day_number	: int1_2digit
                      {
 			exectm.tm_mday = -1;
 			sscanf($1, "%d", &exectm.tm_mday);
-			if (exectm.tm_mday < 0 || exectm.tm_mday > 31)
+			if (exectm.tm_mday < 1 || exectm.tm_mday > 31)
 			{
 			    yyerror("Error in day of month");
 			    YYERROR; 
