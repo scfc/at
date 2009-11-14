@@ -408,13 +408,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	if (lseek(fd_in, (off_t) 0, SEEK_SET) < 0)
 	    perr("Error in lseek");
 
-	if (dup(fd_in) != STDIN_FILENO)
+	if (dup2(fd_in, STDIN_FILENO) < 0)
 	    perr("Error in I/O redirection");
 
-	if (dup(fd_out) != STDOUT_FILENO)
+	if (dup2(fd_out, STDOUT_FILENO) < 0)
 	    perr("Error in I/O redirection");
 
-	if (dup(fd_out) != STDERR_FILENO)
+	if (dup2(fd_out, STDERR_FILENO) < 0)
 	    perr("Error in I/O redirection");
 
 	close(fd_in);
@@ -465,8 +465,10 @@ run_file(const char *filename, uid_t uid, gid_t gid)
      * doesn't hang around after the run.
      */
     stat(filename, &buf);
-    if (open(filename, O_RDONLY) != STDIN_FILENO)
+    if ((fd_in = open(filename, O_RDONLY)) < 0)
 	perr("Open of jobfile failed");
+    if (dup2(fd_in, STDIN_FILENO) < 0)
+        perr("Could not use jobfile as standard input.");
 
     unlink(filename);
 
