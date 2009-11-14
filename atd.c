@@ -494,7 +494,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	    chdir ("/");
 
 #if defined(SENDMAIL)
-	    execl(SENDMAIL, "sendmail", mailname, (char *) NULL);
+	    execl(SENDMAIL, "sendmail", "-i", mailname, (char *) NULL);
 #else
 #error      "No mail command specified."
 #endif
