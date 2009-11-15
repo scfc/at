@@ -470,6 +470,18 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     if (dup2(fd_in, STDIN_FILENO) < 0)
         perr("Could not use jobfile as standard input.");
 
+    /* some sendmail implementations are confused if stdout, stderr are
+     * not available, so let them point to /dev/null
+     */
+    if ((fd_in = open("/dev/null", O_WRONLY)) < 0)
+	perr("Could not open /dev/null.");
+    if (dup2(fd_in, STDOUT_FILENO) < 0)
+	perr("Could not use /dev/null as standard output.");
+    if (dup2(fd_in, STDERR_FILENO) < 0)
+	perr("Could not use /dev/null as standard error.");
+    if (fd_in != STDOUT_FILENO && fd_in != STDERR_FILENO)
+	close(fd_in);
+
     unlink(filename);
 
     /* The job is now finished.  We can delete its input file.
