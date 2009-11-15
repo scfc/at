@@ -36,8 +36,10 @@ case "$1" in
     $0 stop
     $0 start
     ;;
+  status)
+    status_of_proc -p $PIDFILE $DAEMON atd && exit 0 || exit $?
   *)
-    echo "Usage: /etc/init.d/atd {start|stop|restart|force-reload}"
+    echo "Usage: /etc/init.d/atd {start|stop|restart|force-reload|status}"
     exit 1
     ;;
 esac
