@@ -196,48 +196,6 @@ AC_DEFINE_UNQUOTED(ATSPOOL_DIR, "$ATSPD", [Where do we spool our output?])
 AC_MSG_RESULT($ATSPD)
 AC_SUBST(ATSPD)
 
-AC_MSG_CHECKING(default at queue)
-AC_ARG_WITH(atqueue,
-[ --with-atqueue=DEFAULT_AT_QUEUE	Default queue for at (default a). ],
-[ case "$withval" in
-  no)
-    AC_MSG_ERROR(Need DEFAULT_AT_QUEUE.)
-    ;;
-  yes)
-    DEFATQ=a
-    ;;
-  *)
-    DEFATQ=$withval
-    ;;
-    esac ],
-    DEFATQ=a
-)
-AC_DEFINE_UNQUOTED(DEFAULT_AT_QUEUE, '$DEFATQ', [Default queue for at])
-AC_MSG_RESULT($DEFATQ)
-
-AC_SUBST(DEFATQ)
-
-AC_MSG_CHECKING(default batch queue)
-AC_ARG_WITH(batchqueue,
-[ --with-batchqueue=DEFAULT_BATCH_QUEUE	Default queue for batch (default b). ],
-[ case "$withval" in
-  no)
-    AC_MSG_ERROR(Need DEFAULT_BATCH_QUEUE.)
-    ;;
-  yes)
-    DEFBQ=b
-    ;;
-  *)
-    DEFBQ=$withval
-    ;;
-    esac ],
-    DEFBQ=b
-)
-AC_DEFINE_UNQUOTED(DEFAULT_BATCH_QUEUE, '$DEFBQ', [Default queue for batch])
-AC_MSG_RESULT($DEFBQ)
-
-AC_SUBST(DEFBQ)
-
 AC_MSG_CHECKING(maximum load average for batch to start jobs)
 AC_ARG_WITH(loadavg_mx,
 [ --with-loadavg_mx=LOADAVG_MX	Default max. load average for batch (default 0.8). ],

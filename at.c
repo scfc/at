@@ -94,6 +94,9 @@
 #define TIMEFORMAT_POSIX	"%a %b %e %T %Y"
 #define TIMESIZE	50
 
+#define DEFAULT_QUEUE 'a'
+#define BATCH_QUEUE   'b'
+
 enum {
     ATQ, BATCH, ATRM, AT, CAT
 };				/* what program we want to run */
@@ -722,7 +725,7 @@ int
 main(int argc, char **argv)
 {
     int c;
-    char queue = DEFAULT_AT_QUEUE;
+    char queue = DEFAULT_QUEUE;
     char queue_set = 0;
     char *pgm;
 
@@ -933,7 +936,7 @@ main(int argc, char **argv)
 	if (queue_set)
 	    queue = toupper(queue);
 	else
-	    queue = DEFAULT_BATCH_QUEUE;
+	    queue = BATCH_QUEUE;
 
 	if (argc > optind) {
             if (timer != 0) {

@@ -205,11 +205,11 @@ and
 to
 .BR Z .
 The
-.B @DEFATQ@
+.B a
 queue is the default for
 .B at
 and the
-.B @DEFBQ@
+.B b
 queue for
 .BR batch .
 Queues with higher letters run with increased niceness.  The special
