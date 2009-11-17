@@ -8,7 +8,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mldbv ]
+.RB [ -mldv ]
 .IR timespec ...
 .br
 .B at
@@ -17,7 +17,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mkdbv ]
+.RB [ -mkdv ]
 .RB [ -t
 .IR time ]
 .br
@@ -36,6 +36,8 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .RI [ job... ]
 .br
 .B batch
+.br
+.B "at -b"
 .SH DESCRIPTION
 .B at
 and
@@ -245,6 +247,9 @@ Is an alias for
 Is an alias for
 .B atrm.
 .TP
+.B \-b
+is an alias for
+.BR batch .
 .TP
 .B \-v
 Shows the time the job will be executed before reading the job.
