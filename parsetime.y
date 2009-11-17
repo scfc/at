@@ -464,17 +464,15 @@ integer		: INT
 %%
 
 
-time_t parsetime(int, char **);
+time_t parsetime(time_t, int, char **);
 
 time_t
-parsetime(int argc, char **argv)
+parsetime(time_t currtime, int argc, char **argv)
 {
     time_t exectime;
-    time_t currtime;
     struct tm currtm;
 
     my_argv = argv;
-    currtime = time(NULL);
     exectm = *localtime(&currtime);
     currtime -= exectm.tm_sec;
     exectm.tm_sec = 0;
@@ -524,7 +522,15 @@ main(int argc, char **argv)
 {
     int retval = 1;
     time_t res;
-    res = parsetime(argc-1, &argv[1]);
+    time_t currtime;
+
+    if (argc < 3) {
+	fprintf(stderr, "usage: parsetest [now] [timespec] ...\n");
+	exit(EXIT_FAILURE);
+    }
+
+    currtime = atoll(argv[1]);
+    res = parsetime(currtime, argc-2, argv + 2);
     if (res > 0) {
 	printf("%s",ctime(&res));
 	retval = 0;

@@ -909,7 +909,7 @@ main(int argc, char **argv)
                 fprintf(stderr, "Cannot give time two times.\n");
                 exit(EXIT_FAILURE);
             }
-	    timer = parsetime(argc - optind, argv + optind);
+	    timer = parsetime(time(0), argc - optind, argv + optind);
 	}
 
 	if (timer == 0) {
@@ -943,7 +943,7 @@ main(int argc, char **argv)
                 fprintf(stderr, "Cannot give time two times.\n");
                 exit(EXIT_FAILURE);
             }
-	    timer = parsetime(argc, argv);
+	    timer = parsetime(time(0), argc, argv);
         } else if (timer == 0)
 	    timer = time(NULL);
 

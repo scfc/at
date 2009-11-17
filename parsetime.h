@@ -17,7 +17,7 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-time_t parsetime(int argc, char **argv);
+time_t parsetime(time_t currtime, int argc, char **argv);
 
 extern char *last_token;
 extern char **my_argv;
