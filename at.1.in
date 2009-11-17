@@ -87,11 +87,11 @@ by giving a date in the form
 with an optional
 .B year,
 or giving a date of the form
-.B MMDDYY
+.IR MMDD [ CC ] YY ,
+.IR MM / DD /[ CC ] YY ,
+.IR DD . MM .[ CC ] YY
 or
-.B MM/DD/YY
-or
-.B DD.MM.YY.
+.RI [ CC ] YY - MM - DD .
 The specification of a date
 .I must
 follow the specification of the time of day.
