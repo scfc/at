@@ -48,7 +48,7 @@ CSRCS   	= at.c atd.c panic.c perm.c posixtm.c daemon.c getloadavg.c \
 HEADERS 	= at.h panic.h parsetime.h perm.h posixtm.h daemon.h \
 			getloadavg.h privs.h
 
-OTHERS		= parsetime.l parsetime.y
+OTHERS		= parsetime.l parsetime.y parsetime.pl
 
 DOCS =  Problems Copyright README ChangeLog timespec
 
@@ -147,6 +147,9 @@ Filelist.asc: Filelist
 
 parsetest: lex.yy.c y.tab.c
 	$(CC) -o parsetest $(CFLAGS) $(DEFS) -DTEST_PARSER -DNEED_YYWRAP lex.yy.c y.tab.c
+
+test: parsetest
+	prove parsetime.pl
 
 .depend: $(CSRCS)
 	gcc $(CFLAGS) $(DEFS) -MM $(CSRCS) > .depend
