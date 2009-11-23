@@ -1,3 +1,32 @@
+at (3.1.12-1) unstable; urgency=low
+
+  * New upstream release:
+    + do not increment year twice (Closes: #404965) (LP: #312051)
+    + do not increment day of month twice (Closes: #386665)
+    + update documentation on removed environment variables
+      (Closes: #335374)
+    + add -f option to stay in foreground (Closes: #208367) - thanks to
+      Marcela Maslanova <mmaslano@redhat.com>
+    + error when day of month is 0 (Closes: #372671)
+    + make less assumptations on open file descriptors (Closes: #453707)
+    + add status action to init script (Closes: #506829)
+    + make stdout, stderr available to sendmail process (Closes: #316442)
+    + document -b option (LP: #156493)
+    + document 4-digit years and ISO date format (Closes: #359010)
+    + add test suite for date/time parser (Closes: #86662)
+      - add build-dep on perl (>= 5.10.1) for Test::More 0.92
+  * use dh_installinit (Closes: #406359)
+  * remove support for upgrading from pre-3.1.9
+  * remove rc, pam (moved upstream)
+  * remove Cyril Brulebois from Uploaders as requested on IRC
+  * now depends on lsb-base (>= 3.2-14) for status_of_proc in init script
+  * add dependency on libpam-runtime (>= 1.0.1-11) for
+    common-session-noninteractive
+  * update debian/copyright
+  * bump Standards-Version to 3.8.3 (no changes)
+
+ -- Ansgar Burchardt <ansgar@43-1.org>  Mon, 30 Nov 2009 19:14:15 +0900
+
 at (3.1.11-1) unstable; urgency=low
 
   * New "upstream" release:
