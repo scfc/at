@@ -9,12 +9,6 @@
 /* Define to 1 if using `getloadavg.c'. */
 #undef C_GETLOADAVG
 
-/* Default queue for at */
-#undef DEFAULT_AT_QUEUE
-
-/* Default queue for batch */
-#undef DEFAULT_BATCH_QUEUE
-
 /* Define to 1 for DGUX with <sys/dg_sys_info.h>. */
 #undef DGUX
 
