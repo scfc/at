@@ -38,6 +38,7 @@ case "$1" in
     ;;
   status)
     status_of_proc -p $PIDFILE $DAEMON atd && exit 0 || exit $?
+    ;;
   *)
     echo "Usage: /etc/init.d/atd {start|stop|restart|force-reload|status}"
     exit 1
