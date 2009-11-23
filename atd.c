@@ -408,13 +408,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	if (lseek(fd_in, (off_t) 0, SEEK_SET) < 0)
 	    perr("Error in lseek");
 
-	if (dup(fd_in) != STDIN_FILENO)
+	if (dup2(fd_in, STDIN_FILENO) < 0)
 	    perr("Error in I/O redirection");
 
-	if (dup(fd_out) != STDOUT_FILENO)
+	if (dup2(fd_out, STDOUT_FILENO) < 0)
 	    perr("Error in I/O redirection");
 
-	if (dup(fd_out) != STDERR_FILENO)
+	if (dup2(fd_out, STDERR_FILENO) < 0)
 	    perr("Error in I/O redirection");
 
 	close(fd_in);
@@ -465,8 +465,22 @@ run_file(const char *filename, uid_t uid, gid_t gid)
      * doesn't hang around after the run.
      */
     stat(filename, &buf);
-    if (open(filename, O_RDONLY) != STDIN_FILENO)
+    if ((fd_in = open(filename, O_RDONLY)) < 0)
 	perr("Open of jobfile failed");
+    if (dup2(fd_in, STDIN_FILENO) < 0)
+        perr("Could not use jobfile as standard input.");
+
+    /* some sendmail implementations are confused if stdout, stderr are
+     * not available, so let them point to /dev/null
+     */
+    if ((fd_in = open("/dev/null", O_WRONLY)) < 0)
+	perr("Could not open /dev/null.");
+    if (dup2(fd_in, STDOUT_FILENO) < 0)
+	perr("Could not use /dev/null as standard output.");
+    if (dup2(fd_in, STDERR_FILENO) < 0)
+	perr("Could not use /dev/null as standard error.");
+    if (fd_in != STDOUT_FILENO && fd_in != STDERR_FILENO)
+	close(fd_in);
 
     unlink(filename);
 
@@ -492,7 +506,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	    chdir ("/");
 
 #if defined(SENDMAIL)
-	    execl(SENDMAIL, "sendmail", mailname, (char *) NULL);
+	    execl(SENDMAIL, "sendmail", "-i", mailname, (char *) NULL);
 #else
 #error      "No mail command specified."
 #endif
@@ -722,7 +736,7 @@ main(int argc, char *argv[])
     run_as_daemon = 1;
     batch_interval = BATCH_INTERVAL_DEFAULT;
 
-    while ((c = getopt(argc, argv, "sdl:b:")) != EOF) {
+    while ((c = getopt(argc, argv, "sdl:b:f")) != EOF) {
 	switch (c) {
 	case 'l':
 	    if (sscanf(optarg, "%lf", &load_avg) != 1)
@@ -737,6 +751,11 @@ main(int argc, char *argv[])
 	    break;
 	case 'd':
 	    daemon_debug++;
+	    daemon_foreground++;
+	    break;
+
+	case 'f':
+	    daemon_foreground++;
 	    break;
 
 	case 's':

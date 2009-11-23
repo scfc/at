@@ -211,7 +211,7 @@ date            : month_name day_number
 			}
 			exectm.tm_year = ynum ;
 
-			if (   dnum < 0
+			if (   dnum < 1
 			    || ((mnum ==  1 || mnum ==  3 || mnum ==  5 ||
 			         mnum ==  7 || mnum ==  8 || mnum == 10 ||
 				 mnum == 12) && dnum > 31)
@@ -255,7 +255,7 @@ date            : month_name day_number
 			}
 			exectm.tm_year = ynum ;
 
-			if (   dnum < 0
+			if (   dnum < 1
 			    || ((mnum ==  1 || mnum ==  3 || mnum ==  5 ||
 			         mnum ==  7 || mnum ==  8 || mnum == 10 ||
 				 mnum == 12) && dnum > 31)
@@ -371,7 +371,7 @@ day_number	: int1_2digit
                      {
 			exectm.tm_mday = -1;
 			sscanf($1, "%d", &exectm.tm_mday);
-			if (exectm.tm_mday < 0 || exectm.tm_mday > 31)
+			if (exectm.tm_mday < 1 || exectm.tm_mday > 31)
 			{
 			    yyerror("Error in day of month");
 			    YYERROR; 
@@ -464,17 +464,15 @@ integer		: INT
 %%
 
 
-time_t parsetime(int, char **);
+time_t parsetime(time_t, int, char **);
 
 time_t
-parsetime(int argc, char **argv)
+parsetime(time_t currtime, int argc, char **argv)
 {
     time_t exectime;
-    time_t currtime;
     struct tm currtm;
 
     my_argv = argv;
-    currtime = time(NULL);
     exectm = *localtime(&currtime);
     currtime -= exectm.tm_sec;
     exectm.tm_sec = 0;
@@ -486,14 +484,16 @@ parsetime(int argc, char **argv)
     if (yyparse() == 0) {
 	if (time_only)
 	{
-	    if ((exectm.tm_hour < currtm.tm_hour) ||
-		((exectm.tm_hour == currtm.tm_hour &&
+	    if (exectm.tm_mday == currtm.tm_mday &&
+		(exectm.tm_hour < currtm.tm_hour ||
+		(exectm.tm_hour == currtm.tm_hour &&
 		    exectm.tm_min <= currtm.tm_min)))
 		exectm.tm_mday++;
 	} 
 	else if (!yearspec) {
-	    if ((exectm.tm_mon < currtm.tm_mon) ||
-	        ((exectm.tm_mon == currtm.tm_mon &&
+	    if (exectm.tm_year == currtm.tm_year &&
+		(exectm.tm_mon < currtm.tm_mon ||
+	        (exectm.tm_mon == currtm.tm_mon &&
 		     exectm.tm_mday < currtm.tm_mday)))
 		exectm.tm_year++;
 	}
@@ -522,7 +522,15 @@ main(int argc, char **argv)
 {
     int retval = 1;
     time_t res;
-    res = parsetime(argc-1, &argv[1]);
+    time_t currtime;
+
+    if (argc < 3) {
+	fprintf(stderr, "usage: parsetest [now] [timespec] ...\n");
+	exit(EXIT_FAILURE);
+    }
+
+    currtime = atoll(argv[1]);
+    res = parsetime(currtime, argc-2, argv + 2);
     if (res > 0) {
 	printf("%s",ctime(&res));
 	retval = 0;
@@ -534,6 +542,12 @@ main(int argc, char **argv)
     return retval;
 }
 
+void
+panic(char *a)
+{
+    fputs(a, stderr);
+    exit(EXIT_FAILURE);
+}
 #endif
 
 int yyerror(char *s)

@@ -1,4 +1,4 @@
-.TH AT 1 "Nov 1996" local "Linux Programmer's Manual"
+.TH AT 1 2009-11-14
 .SH NAME
 at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .SH SYNOPSIS
@@ -8,7 +8,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mldbv ]
+.RB [ -mldv ]
 .IR timespec ...
 .br
 .B at
@@ -17,7 +17,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mkdbv ]
+.RB [ -mkdv ]
 .RB [ -t
 .IR time ]
 .br
@@ -36,6 +36,8 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .RI [ job... ]
 .br
 .B batch
+.br
+.B "at -b"
 .SH DESCRIPTION
 .B at
 and
@@ -85,11 +87,11 @@ by giving a date in the form
 with an optional
 .B year,
 or giving a date of the form
-.B MMDDYY
+.IR MMDD [ CC ] YY ,
+.IR MM / DD /[ CC ] YY ,
+.IR DD . MM .[ CC ] YY
 or
-.B MM/DD/YY
-or
-.B DD.MM.YY.
+.RI [ CC ] YY - MM - DD .
 The specification of a date
 .I must
 follow the specification of the time of day.
@@ -128,11 +130,24 @@ with the
 .B -f
 option and executed.
 The working directory, the environment (except for the variables
+.BR BASH_VERSINFO ,
+.BR DISPLAY ,
+.BR EUID ,
+.BR GROUPS ,
+.BR SHELLOPTS ,
 .BR TERM ,
-.BR DISPLAY
+.BR UID ,
 and
 .BR _ )
 and the umask are retained from the time of invocation.
+
+As
+.BR at
+is currently implemented as a setuid program, other environment variables (e.g.
+.BR LD_LIBRARY_PATH " or " LD_PRELOAD )
+are also not exported.  This may change in the future.  As a workaround,
+set these variables explicitly in your job.
+
 An
 .BR "at " \-
 or
@@ -192,11 +207,11 @@ and
 to
 .BR Z .
 The
-.B @DEFATQ@
+.B a
 queue is the default for
 .B at
 and the
-.B @DEFBQ@
+.B b
 queue for
 .BR batch .
 Queues with higher letters run with increased niceness.  The special
@@ -232,6 +247,9 @@ Is an alias for
 Is an alias for
 .B atrm.
 .TP
+.B \-b
+is an alias for
+.BR batch .
 .TP
 .B \-v
 Shows the time the job will be executed before reading the job.
