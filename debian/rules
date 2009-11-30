@@ -23,6 +23,7 @@ build-stamp:
 
 	./configure $(confflags)
 	$(MAKE)
+	$(MAKE) test
 	touch $@
 
 clean:
