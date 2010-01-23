@@ -427,7 +427,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	    nice((tolower((int) queue) - 'a' + 1) * 2);
 
 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
-		perr("Cannot delete saved userids");
+		perr("Cannot initialize the supplementary group access list");
 
 	    if (setgid(ngid) < 0)
 		perr("Cannot change group");
@@ -495,7 +495,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	PRIV_START
 
 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
-		perr("Cannot delete saved userids");
+		perr("Cannot initialize the supplementary group access list");
 
 	    if (setgid(gid) < 0)
 		perr("Cannot change group");
