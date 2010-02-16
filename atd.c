@@ -241,11 +241,8 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
     sprintf(jobbuf, "%8lu", jobno);
 
-    if ((newname = malloc(strlen(filename) + 1)) == NULL)
+    if ((newname = strdup(filename)) == 0)
 	pabort("Job %8lu : out of virtual memory", jobno);
-
-    strcpy(newname, filename);
-
     newname[0] = '=';
 
     /* We try to make a hard link to lock the file.  If we fail, then
