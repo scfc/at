@@ -366,7 +366,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     }
 
     if ((fd_out = open(filename,
-		    O_WRONLY | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR)) < 0)
+		    O_RDWR | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR)) < 0)
 	perr("Cannot create output file");
     PRIV_START
     if (fchown(fd_out, uid, ngid) == -1)
@@ -450,7 +450,6 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     /* We're the parent.  Let's wait.
      */
     close(fd_in);
-    close(fd_out);
 
     /* We inherited the master's SIGCHLD handler, which does a
        non-blocking waitpid. So this blocking one will eventually
@@ -469,10 +468,9 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     /* Send mail.  Unlink the output file after opening it, so it
      * doesn't hang around after the run.
      */
-    stat(filename, &buf);
-    if ((fd_in = open(filename, O_RDONLY)) < 0)
-	perr("Open of jobfile failed");
-    if (dup2(fd_in, STDIN_FILENO) < 0)
+    fstat(fd_out, &buf);
+    lseek(fd_out, 0, SEEK_SET);
+    if (dup2(fd_out, STDIN_FILENO) < 0)
         perr("Could not use jobfile as standard input.");
 
     /* some sendmail implementations are confused if stdout, stderr are
@@ -487,7 +485,9 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     if (fd_in != STDOUT_FILENO && fd_in != STDERR_FILENO)
 	close(fd_in);
 
-    unlink(filename);
+    if (unlink(filename) == -1)
+        syslog(LOG_WARNING, "Warning: removing output file for job %li failed: %s",
+                jobno, strerror(errno));
 
     /* The job is now finished.  We can delete its input file.
      */
