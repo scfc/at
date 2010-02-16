@@ -368,6 +368,11 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     if ((fd_out = open(filename,
 		    O_WRONLY | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR)) < 0)
 	perr("Cannot create output file");
+    PRIV_START
+    if (fchown(fd_out, uid, ngid) == -1)
+        syslog(LOG_WARNING, "Warning: could not change owner of output file for job %li to %i:%i: %s",
+                jobno, uid, ngid, strerror(errno));
+    PRIV_END
 
     write_string(fd_out, "Subject: Output from your job ");
     write_string(fd_out, jobbuf);
