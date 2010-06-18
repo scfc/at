@@ -11,7 +11,8 @@ DM-Upload-Allowed: yes
 
 Package: at
 Architecture: any
-Depends: ${shlibs:Depends}, lsb-base (>= 3.2-14), libpam-runtime (>= 1.0.1-11)
+Depends: ${shlibs:Depends}, ${misc:Depends},
+ lsb-base (>= 3.2-14), libpam-runtime (>= 1.0.1-11)
 Recommends: exim4 | mail-transport-agent
 Description: Delayed job execution and batch processing
  At and batch read shell commands from standard input
