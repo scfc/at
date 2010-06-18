@@ -13,7 +13,7 @@ Package: at
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
  lsb-base (>= 3.2-14), libpam-runtime (>= 1.0.1-11)
-Recommends: exim4 | mail-transport-agent
+Recommends: default-mta | mail-transport-agent
 Description: Delayed job execution and batch processing
  At and batch read shell commands from standard input
  storing them as a job to be scheduled for execution in the
