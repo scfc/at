@@ -76,7 +76,7 @@ system.
 .BR at (1),
 .BR at.deny (5),
 .BR at.allow (5),
-.BR atrun (1),
+.BR atrun (8),
 .BR cron (8),
 .BR crontab (1),
 .BR syslog (3).
