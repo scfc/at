@@ -8,7 +8,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mldv ]
+.RB [ -mMldv ]
 .IR timespec ...
 .br
 .B at
@@ -17,7 +17,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mkdv ]
+.RB [ -mMkdv ]
 .RB [ -t
 .IR time ]
 .br
@@ -228,6 +228,9 @@ is given a specific queue, it will only show jobs pending in that queue.
 .B \-m
 Send mail to the user when the job has completed even if there was no
 output.
+.TP 8
+.B \-M
+Never send mail to the user.
 .TP 8
 .BI \-f " file"
 Reads the job from
