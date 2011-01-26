@@ -274,11 +274,11 @@ cats the jobs listed on the command line to standard output.
 .SH SEE ALSO
 .BR at.allow (5),
 .BR at.deny (5),
+.BR atd (8),
 .BR cron (1),
 .BR nice (1),
 .BR sh (1),
-.BR umask (2),
-.BR atd (8).
+.BR umask (2).
 .SH BUGS
 The correct operation of
 .B batch
