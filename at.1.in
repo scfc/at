@@ -272,6 +272,8 @@ cats the jobs listed on the command line to standard output.
 .br
 .I @ETCDIR@/at.deny
 .SH SEE ALSO
+.BR at.allow (5),
+.BR at.deny (5),
 .BR cron (1),
 .BR nice (1),
 .BR sh (1),
