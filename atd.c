@@ -421,8 +421,6 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 	close(fd_in);
 	close(fd_out);
-	if (chdir(ATJOB_DIR) < 0)
-	    perr("Cannot chdir to " ATJOB_DIR);
 
 	PRIV_START
 
