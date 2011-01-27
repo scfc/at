@@ -40,10 +40,10 @@ LIBOBJS		= @LIBOBJS@
 INSTALL		= @INSTALL@
 PAMLIB          = @PAMLIB@
 
-CLONES		= atq atrm 
+CLONES		= atq atrm
 ATOBJECTS	= at.o panic.o perm.o posixtm.o y.tab.o lex.yy.o
 RUNOBJECTS	= atd.o daemon.o $(LIBOBJS)
-CSRCS   	= at.c atd.c panic.c perm.c posixtm.c daemon.c getloadavg.c \
+CSRCS		= at.c atd.c panic.c perm.c posixtm.c daemon.c getloadavg.c \
 			y.tab.c y.tab.h lex.yy.c
 HEADERS 	= at.h panic.h parsetime.h perm.h posixtm.h daemon.h \
 			getloadavg.h privs.h
@@ -53,7 +53,7 @@ OTHERS		= parsetime.l parsetime.y parsetime.pl
 DOCS =  Problems Copyright README ChangeLog timespec
 
 MISC =  COPYING  Makefile.in configure acconfig.h install-sh \
-	README atrun.in at.1.in atrun.8.in atd.8.in at_allow.5 \
+	README atrun.in at.1.in atrun.8.in atd.8.in at_allow.5.in \
 	configure.in  config.h.in config.guess config.sub batch.in at.deny \
 	$(DOCS)
 
@@ -113,7 +113,7 @@ install: all
 	$(INSTALL) -g root -o root -m 644 tmpman $(IROOT)$(man8dir)/atrun.8
 	rm -f tmpman
 	$(INSTALL) -g root -o root -m 644 at_allow.5 $(IROOT)$(man5dir)/
-	cd $(IROOT)$(man5dir) && $(LN_S) -f at_allow.5 at_deny.5 
+	cd $(IROOT)$(man5dir) && $(LN_S) -f at_allow.5 at_deny.5
 	$(INSTALL) -g root -o root -m 644 $(DOCS) $(IROOT)$(atdocdir)
 	rm -f $(IROOT)$(mandir)/cat1/at.1* $(IROOT)$(mandir)/cat1/batch.1* \
 		$(IROOT)$(mandir)/cat1/atq.1*
@@ -132,7 +132,7 @@ clean:
 	rm -f subs.sed *.o *.s at atd core a.out *~ $(CLONES) *.bak stamp-built
 	rm -f parsetest parsetime.c lex.yy.c y.tab.c y.tab.h
 
-distclean: clean 
+distclean: clean
 	rm -rf at.1 atd.8 atrun.8 config.cache atrun batch config.h \
 		config.status Makefile config.log build
 
