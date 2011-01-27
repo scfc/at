@@ -1,7 +1,7 @@
 Source: at
 Section: admin
 Priority: standard
-Maintainer: Ansgar Burchardt <ansgar@43-1.org>
+Maintainer: Ansgar Burchardt <ansgar@debian.org>
 Standards-Version: 3.8.3
 Build-Depends: debhelper (>= 7), autotools-dev, bison, flex, libpam0g-dev,
  perl (>= 5.10.1)
