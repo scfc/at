@@ -219,13 +219,12 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     char queue;
     char fmt[64];
     unsigned long jobno;
+    int rc;
 #ifdef HAVE_PAM
     int retcode;
 #endif
 
 #ifdef _SC_LOGIN_NAME_MAX
-    int rc;
-
     errno = 0;
     rc = sysconf(_SC_LOGIN_NAME_MAX);
     if (rc > 0)
