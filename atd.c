@@ -249,7 +249,10 @@ run_file(const char *filename, uid_t uid, gid_t gid)
      * somebody else has already locked it (a second atd?); log the
      * fact and return.
      */
-    if (link(filename, newname) == -1) {
+    PRIV_START
+    rc = link(filename, newname);
+    PRIV_END
+    if (rc == -1) {
 	if (errno == EEXIST) {
 	    free(mailname);
 	    free(newname);
