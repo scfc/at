@@ -259,5 +259,5 @@ AC_ARG_WITH(daemon_groupname,
 )
 AC_SUBST(DAEMON_GROUPNAME)
 
-AC_CONFIG_FILES(Makefile atrun atd.8 atrun.8 at.1 at_allow.5 batch)
+AC_CONFIG_FILES(Makefile atrun atd.8 atrun.8 at.1 at.allow.5 batch)
 AC_OUTPUT

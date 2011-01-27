@@ -53,7 +53,7 @@ OTHERS		= parsetime.l parsetime.y parsetime.pl
 DOCS =  Problems Copyright README ChangeLog timespec
 
 MISC =  COPYING  Makefile.in configure acconfig.h install-sh \
-	README atrun.in at.1.in atrun.8.in atd.8.in at_allow.5.in \
+	README atrun.in at.1.in atrun.8.in atd.8.in at.allow.5.in \
 	configure.in  config.h.in config.guess config.sub batch.in at.deny \
 	$(DOCS)
 
@@ -112,8 +112,8 @@ install: all
 	sed "s,\$${exec_prefix},$(exec_prefix),g" <atrun.8>tmpman
 	$(INSTALL) -g root -o root -m 644 tmpman $(IROOT)$(man8dir)/atrun.8
 	rm -f tmpman
-	$(INSTALL) -g root -o root -m 644 at_allow.5 $(IROOT)$(man5dir)/
-	cd $(IROOT)$(man5dir) && $(LN_S) -f at_allow.5 at_deny.5
+	$(INSTALL) -g root -o root -m 644 at.allow.5 $(IROOT)$(man5dir)/
+	cd $(IROOT)$(man5dir) && $(LN_S) -f at.allow.5 at.deny.5
 	$(INSTALL) -g root -o root -m 644 $(DOCS) $(IROOT)$(atdocdir)
 	rm -f $(IROOT)$(mandir)/cat1/at.1* $(IROOT)$(mandir)/cat1/batch.1* \
 		$(IROOT)$(mandir)/cat1/atq.1*
