@@ -49,13 +49,6 @@ binary-arch: build-stamp
 	# TODO: Take care of those:
 	rm -f debian/at/var/spool/cron/atjobs/.SEQ
 	chown daemon:daemon debian/at/var/spool/cron/atjobs debian/at/var/spool/cron/atspool
-	# Take care of the manpages:
-	dh_installman
-	mv debian/at/usr/share/man/man5/at_allow.5 \
-		debian/at/usr/share/man/man5/at.allow.5
-	rm debian/at/usr/share/man/man5/at_deny.5
-	ln -sf at.allow.5 \
-		debian/at/usr/share/man/man5/at.deny.5
 	# TODO: Why removing those?
 	rm debian/at/usr/sbin/atrun
 	rm debian/at/usr/share/man/man8/atrun.8
