@@ -906,7 +906,7 @@ main(int argc, char **argv)
     case AT:
 	if (argc > optind) {
 	    if (timer != 0) {
-                fprintf(stderr, "Cannot give time two times.\n");
+                fprintf(stderr, "Cannot give time twice.\n");
                 exit(EXIT_FAILURE);
             }
 	    timer = parsetime(time(0), argc - optind, argv + optind);
@@ -940,7 +940,7 @@ main(int argc, char **argv)
 
 	if (argc > optind) {
             if (timer != 0) {
-                fprintf(stderr, "Cannot give time two times.\n");
+                fprintf(stderr, "Cannot give time twice.\n");
                 exit(EXIT_FAILURE);
             }
 	    timer = parsetime(time(0), argc, argv);
