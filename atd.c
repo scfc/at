@@ -544,8 +544,8 @@ run_loop()
      * and execs a /bin/sh, which executes the shell.  The function will
      * then remove the script (hopefully).
      *
-     * Also, pick the oldest batch job to run, at most one per invocation of
-     * atrun.
+     * Also, pick the oldest batch job to run, at most one per run of
+     * the main loop.
      */
 
     next_job = now + CHECK_INTERVAL;

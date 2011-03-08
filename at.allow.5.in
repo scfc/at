@@ -35,7 +35,6 @@ means that every user may use
 If neither exists, only the superuser is allowed to use at.
 .SH "SEE ALSO"
 .BR at (1),
-.BR atrun (1),
 .BR cron (8),
 .BR crontab (1),
 .BR atd (8).

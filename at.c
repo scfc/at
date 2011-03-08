@@ -1,5 +1,5 @@
-/* 
- *  at.c : Put file into atrun queue
+/*
+ *  at.c : Put file into atd queue
  *  Copyright (C) 1993, 1994, 1995, 1996, 1997 Thomas Koenig
  *  Copyright (C) 2002, 2005 Ryan Murray
  *
