@@ -108,3 +108,31 @@ at 3.1.12:
       add test suite
       update copyright information
 
+at 3.1.13:
+
+  Ansgar Burchardt (18):
+        parsetime.pl: add test case
+        correct error message when initgroups fails
+        change owner of output file
+        do not open output file twice
+        use strdup()
+        at.1.in: Add references to at.allow(5), at.deny(5)
+        Sort references in SEE ALSO section.
+        man page for atrun is in section 8
+        at.1.in: Document -M option.
+        at.1.in: Remove a dot from mid-sentence.
+        Rename at_allow.5.in to at.allow.5.in
+        Remove useless chdir()
+        Create hardlink as priviledged user
+        Update my email address.
+        atd.c: variable "rc" is always used
+        No longer mention atrun in documentation.
+        do not abort when job is removed just before we run it
+        do not strip binaries on install
+
+  Mike Miller (1):
+        Add support for -r option required by POSIX.
+
+  Reuben Thomas (2):
+        De-duplicate and improve documentation of /etc/at.{deny,allow}.
+        Clarify an error message.
