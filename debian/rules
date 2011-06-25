@@ -14,7 +14,8 @@ else
   confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
 endif
 
-build: build-stamp
+build: build-arch build-indep
+build-arch: build-stamp
 build-stamp:
 	[ -f config.sub.ori ] || mv config.sub config.sub.ori
 	[ -f config.guess.ori ] || mv config.guess config.guess.ori
@@ -25,6 +26,9 @@ build-stamp:
 	$(MAKE)
 	$(MAKE) test
 	touch $@
+
+build-indep:
+# Nothing to be done here.
 
 clean:
 	[ ! -f Makefile ] || $(MAKE) distclean
