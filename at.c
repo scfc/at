@@ -1,5 +1,5 @@
-/* 
- *  at.c : Put file into atrun queue
+/*
+ *  at.c : Put file into atd queue
  *  Copyright (C) 1993, 1994, 1995, 1996, 1997 Thomas Koenig
  *  Copyright (C) 2002, 2005 Ryan Murray
  *
@@ -730,7 +730,7 @@ main(int argc, char **argv)
     char *pgm;
 
     int program = AT;		/* our default program */
-    char *options = "q:f:MmvldhVct:";	/* default options for at */
+    char *options = "q:f:MmvlrdhVct:";	/* default options for at */
     int disp_version = 0;
     time_t timer = 0;
     struct passwd *pwe;
@@ -906,7 +906,7 @@ main(int argc, char **argv)
     case AT:
 	if (argc > optind) {
 	    if (timer != 0) {
-                fprintf(stderr, "Cannot give time two times.\n");
+                fprintf(stderr, "Cannot give time twice.\n");
                 exit(EXIT_FAILURE);
             }
 	    timer = parsetime(time(0), argc - optind, argv + optind);
@@ -940,7 +940,7 @@ main(int argc, char **argv)
 
 	if (argc > optind) {
             if (timer != 0) {
-                fprintf(stderr, "Cannot give time two times.\n");
+                fprintf(stderr, "Cannot give time twice.\n");
                 exit(EXIT_FAILURE);
             }
 	    timer = parsetime(time(0), argc, argv);

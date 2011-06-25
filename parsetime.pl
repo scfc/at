@@ -2,7 +2,7 @@
 #
 # parsetime.pl - test suite for the timespec parser in at
 #
-# Copyright (C) 2009, Ansgar Burchardt <ansgar@43-1.org>
+# Copyright (C) 2009, Ansgar Burchardt <ansgar@debian.org>
 #
 # Permission to use, copy, modify, and/or distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -90,6 +90,14 @@ test("Apr 31", "Ooops...");
 }
 test("May -1", "Ooops...");
 test("Oct 0", "Ooops...");
+
+# http://bugs.debian.org/364975
+TODO: {
+local $TODO = "DST ignored when computing difference from UTC";
+$ENV{TZ} = "America/New_York";
+$now = 1146160800; # Apr 27 2006 18:00 UTC
+test("20:00 UTC", "Thu Apr 27 16:00:00 2006");
+}
 
 done_testing();
 1;

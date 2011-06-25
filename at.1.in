@@ -4,11 +4,11 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .SH SYNOPSIS
 .B at
 .RB [ -V ]
-.RB [ -q 
+.RB [ -q
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mldv ]
+.RB [ -mMlv ]
 .IR timespec ...
 .br
 .B at
@@ -17,7 +17,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .IR queue ]
 .RB [ -f
 .IR file ]
-.RB [ -mkdv ]
+.RB [ -mMkv ]
 .RB [ -t
 .IR time ]
 .br
@@ -29,6 +29,11 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .RB [ -V ]
 .RB [ -q
 .IR queue ]
+.br
+.B at
+.RB [ -rd ]
+.I job
+.RI [ job... ]
 .br
 .B atrm
 .RB [ -V ]
@@ -65,7 +70,7 @@ drops below @LOADAVG_MX@, or the value specified in the invocation of
 .B At
 allows fairly complex time
 specifications, extending the POSIX.2 standard.  It accepts times
-of the form 
+of the form
 .B HH:MM
 to run a job at a specific time of day.
 (If that time is already past, the next day is assumed.)
@@ -120,7 +125,7 @@ to run a job at 10:00am on July 31, you would do
 and to run a job at 1am tomorrow, you would do
 .B at 1am tomorrow.
 .PP
-The exact definition of the time specification can be found in
+The definition of the time specification can be found in
 .IR @prefix@/share/doc/at/timespec .
 .PP
 For both
@@ -152,7 +157,7 @@ An
 .BR "at " \-
 or
 .BR "batch "\-
-command invoked from a 
+command invoked from a
 .B su(1)
 shell will retain the current userid.
 The user will be mailed standard error and standard output from his
@@ -161,7 +166,7 @@ Mail will be sent using the command
 .BR @MAIL_CMD@ .
 If
 .B at
-is executed from a 
+is executed from a
 .B su(1)
 shell, the owner of the login shell will receive the mail.
 .PP
@@ -170,26 +175,9 @@ For other users, permission to use at is determined by the files
 .I @ETCDIR@/at.allow
 and
 .IR @ETCDIR@/at.deny .
-.PP
-If the file
-.I @ETCDIR@/at.allow
-exists, only usernames mentioned in it are allowed to use
-.BR at .
-.PP
-If
-.I @ETCDIR@/at.allow
-does not exist,
-.I @ETCDIR@/at.deny
-is checked, every username not mentioned in it is then allowed
-to use
-.BR at .
-.PP
-If neither exists, only the superuser is allowed use of at.
-.PP
-An empty 
-.I @ETCDIR@/at.deny
-means that every user is allowed use these commands, this is the
-default configuration.
+See
+.BR at.allow (5)
+for details.
 .SH OPTIONS
 .TP 8
 .B -V
@@ -200,8 +188,8 @@ uses the specified queue.
 A queue designation consists of a single letter; valid queue designations
 range from
 .B a
-to 
-.BR z .
+to
+.BR z
 and
 .B A
 to
@@ -229,6 +217,9 @@ is given a specific queue, it will only show jobs pending in that queue.
 Send mail to the user when the job has completed even if there was no
 output.
 .TP 8
+.B \-M
+Never send mail to the user.
+.TP 8
 .BI \-f " file"
 Reads the job from
 .I file
@@ -242,6 +233,10 @@ given in the format [[CC]YY]MMDDhhmm[.ss]
 .B \-l
 Is an alias for
 .B atq.
+.TP
+.B \-r
+Is an alias for
+.B atrm.
 .TP
 .B \-d
 Is an alias for
@@ -272,11 +267,13 @@ cats the jobs listed on the command line to standard output.
 .br
 .I @ETCDIR@/at.deny
 .SH SEE ALSO
+.BR at.allow (5),
+.BR at.deny (5),
+.BR atd (8),
 .BR cron (1),
 .BR nice (1),
 .BR sh (1),
-.BR umask (2),
-.BR atd (8).
+.BR umask (2).
 .SH BUGS
 The correct operation of
 .B batch
@@ -288,7 +285,7 @@ type directory mounted on
 If the file
 .I /var/run/utmp
 is not available or corrupted, or if the user is not logged on at the
-time 
+time
 .B at
 is invoked, the mail is sent to the userid found
 in the environment variable

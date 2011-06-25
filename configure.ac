@@ -1,6 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(at, 3.1.12)
+AC_INIT(at, 3.1.13)
 AC_CONFIG_SRCDIR(at.c)
 
 AC_PREFIX_DEFAULT(/usr)
@@ -49,15 +49,15 @@ AC_MSG_CHECKING(__attribute__((noreturn)))
 AC_TRY_COMPILE([], [void __attribute__((noreturn)) panic(void);],
     AC_MSG_RESULT(yes)
     AC_DEFINE(HAVE_ATTRIBUTE_NORETURN, 1,
-	      [Define to 1 if compiler supports __attribute__((noreturn))]),
+              [Define to 1 if compiler supports __attribute__((noreturn))]),
     AC_MSG_RESULT(no)
 )
 dnl Checks for libraries.
 
 AC_CHECK_LIB(fl,yywrap,
-	[],
-	AC_DEFINE(NEED_YYWRAP, 1,
-		  [Define to 1 if we need to provide our own yywrap()])
+        [],
+        AC_DEFINE(NEED_YYWRAP, 1,
+                  [Define to 1 if we need to provide our own yywrap()])
 )
 
 dnl Checks for header files.
@@ -259,5 +259,5 @@ AC_ARG_WITH(daemon_groupname,
 )
 AC_SUBST(DAEMON_GROUPNAME)
 
-AC_CONFIG_FILES(Makefile atrun atd.8 atrun.8 at.1 batch)
+AC_CONFIG_FILES(Makefile atrun atd.8 atrun.8 at.1 at.allow.5 batch)
 AC_OUTPUT

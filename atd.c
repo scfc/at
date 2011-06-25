@@ -219,13 +219,12 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     char queue;
     char fmt[64];
     unsigned long jobno;
+    int rc;
 #ifdef HAVE_PAM
     int retcode;
 #endif
 
 #ifdef _SC_LOGIN_NAME_MAX
-    int rc;
-
     errno = 0;
     rc = sysconf(_SC_LOGIN_NAME_MAX);
     if (rc > 0)
@@ -241,26 +240,22 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
     sprintf(jobbuf, "%8lu", jobno);
 
-    if ((newname = malloc(strlen(filename) + 1)) == NULL)
+    if ((newname = strdup(filename)) == 0)
 	pabort("Job %8lu : out of virtual memory", jobno);
-
-    strcpy(newname, filename);
-
     newname[0] = '=';
 
     /* We try to make a hard link to lock the file.  If we fail, then
-     * somebody else has already locked it (a second atd?); log the
+     * somebody else has already locked or deleted it (a second atd?); log the
      * fact and return.
      */
-    if (link(filename, newname) == -1) {
-	if (errno == EEXIST) {
-	    free(mailname);
-	    free(newname);
-	    syslog(LOG_WARNING, "trying to execute job %.100s twice",filename);
-	    return;
-	} else {
-	    perr("Can't link execution file");
-	}
+    PRIV_START
+    rc = link(filename, newname);
+    PRIV_END
+    if (rc == -1) {
+	syslog(LOG_WARNING, "could not lock job %lu: %m", jobno);
+	free(mailname);
+	free(newname);
+	return;
     }
     /* If something goes wrong between here and the unlink() call,
      * the job gets restarted as soon as the "=" entry is cleared
@@ -366,8 +361,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     }
 
     if ((fd_out = open(filename,
-		    O_WRONLY | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR)) < 0)
+		    O_RDWR | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR)) < 0)
 	perr("Cannot create output file");
+    PRIV_START
+    if (fchown(fd_out, uid, ngid) == -1)
+        syslog(LOG_WARNING, "Warning: could not change owner of output file for job %li to %i:%i: %s",
+                jobno, uid, ngid, strerror(errno));
+    PRIV_END
 
     write_string(fd_out, "Subject: Output from your job ");
     write_string(fd_out, jobbuf);
@@ -419,15 +419,13 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 
 	close(fd_in);
 	close(fd_out);
-	if (chdir(ATJOB_DIR) < 0)
-	    perr("Cannot chdir to " ATJOB_DIR);
 
 	PRIV_START
 
 	    nice((tolower((int) queue) - 'a' + 1) * 2);
 
 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
-		perr("Cannot delete saved userids");
+		perr("Cannot initialize the supplementary group access list");
 
 	    if (setgid(ngid) < 0)
 		perr("Cannot change group");
@@ -445,7 +443,6 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     /* We're the parent.  Let's wait.
      */
     close(fd_in);
-    close(fd_out);
 
     /* We inherited the master's SIGCHLD handler, which does a
        non-blocking waitpid. So this blocking one will eventually
@@ -464,10 +461,9 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     /* Send mail.  Unlink the output file after opening it, so it
      * doesn't hang around after the run.
      */
-    stat(filename, &buf);
-    if ((fd_in = open(filename, O_RDONLY)) < 0)
-	perr("Open of jobfile failed");
-    if (dup2(fd_in, STDIN_FILENO) < 0)
+    fstat(fd_out, &buf);
+    lseek(fd_out, 0, SEEK_SET);
+    if (dup2(fd_out, STDIN_FILENO) < 0)
         perr("Could not use jobfile as standard input.");
 
     /* some sendmail implementations are confused if stdout, stderr are
@@ -482,7 +478,9 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     if (fd_in != STDOUT_FILENO && fd_in != STDERR_FILENO)
 	close(fd_in);
 
-    unlink(filename);
+    if (unlink(filename) == -1)
+        syslog(LOG_WARNING, "Warning: removing output file for job %li failed: %s",
+                jobno, strerror(errno));
 
     /* The job is now finished.  We can delete its input file.
      */
@@ -495,7 +493,7 @@ run_file(const char *filename, uid_t uid, gid_t gid)
 	PRIV_START
 
 	    if (initgroups(pentry->pw_name, pentry->pw_gid))
-		perr("Cannot delete saved userids");
+		perr("Cannot initialize the supplementary group access list");
 
 	    if (setgid(gid) < 0)
 		perr("Cannot change group");
@@ -542,8 +540,8 @@ run_loop()
      * and execs a /bin/sh, which executes the shell.  The function will
      * then remove the script (hopefully).
      *
-     * Also, pick the oldest batch job to run, at most one per invocation of
-     * atrun.
+     * Also, pick the oldest batch job to run, at most one per run of
+     * the main loop.
      */
 
     next_job = now + CHECK_INTERVAL;

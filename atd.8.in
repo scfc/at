@@ -48,11 +48,6 @@ This is primarily of use for compatibility with old versions of
 is equivalent to the old
 .B atrun
 command.
-A script invoking
-.B "atd -s"
-is installed as
-.B @prefix@/sbin/atrun
-for backward compatibility.
 .SH WARNING
 .B atd
 won't work if its spool directory is mounted via NFS even if
@@ -74,12 +69,11 @@ determine who can use the
 system.
 .SH "SEE ALSO"
 .BR at (1),
-.BR atrun (1),
+.BR at.deny (5),
+.BR at.allow (5),
 .BR cron (8),
 .BR crontab (1),
-.BR syslog (3),
-.BR at.deny (5),
-.BR at.allow(5).
+.BR syslog (3).
 .SH BUGS
 The functionality of 
 .B atd
