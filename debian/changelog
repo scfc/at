@@ -1,3 +1,24 @@
+at (3.1.13-1) unstable; urgency=low
+
+  * New upstream release:
+    + Remove useless chdir(). (Closes: #587121)
+    + Create hardlink as priviledged user. (Closes: #597130)
+    + Add support for -r option required by POSIX. (Closes: #616697)
+    + Don't abort when job is removed just before we run it. (Closes: #309014)
+    + Do not strip binaries on install. (Closes: #436485)
+  * Recommend default-mta instead of exim4. (Closes: #542872)
+  * debian/control: Add dependency on ${misc:Depends}. (Closes: #586260)
+  * debian/control: Remove DM-Upload-Allowed.
+  * Update my email address.
+  * debian/source/format: Use source format 1.0.
+  * debian/copyright: Refer to specific versions of the GPL.
+  * Add debian/watch with a comment that Debian is upstream.
+  * debian/postinst: use "set -e" instead of "#!/bin/sh -e".
+  * debian/rules: Add build-arch, build-indep targets.
+  * Bump Standards-Version to 3.9.2.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Sat, 25 Jun 2011 15:05:40 +0200
+
 at (3.1.12-1) unstable; urgency=low
 
   * New upstream release:
