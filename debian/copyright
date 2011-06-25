@@ -26,6 +26,9 @@ doesn't seem to be any other upstream source, the only upstream source.
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
 
+On Debian systems, the complete text of version 2 of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL-2'.
+
 The files posixtm.c and posixtm.h have the following copyright information:
 
    Copyright (C) 1989, 1990, 1991, 1998, 2000, 2001, 2002, 2003, 2004,
@@ -40,6 +43,9 @@ The files posixtm.c and posixtm.h have the following copyright information:
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
+
+On Debian systems, the complete text of version 3 of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL-3'.
 
 parsetime.pl:
 
@@ -56,6 +62,3 @@ parsetime.pl:
   LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
   OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
   PERFORMANCE OF THIS SOFTWARE.
-
-On Debian GNU/Linux systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL'.
