@@ -245,21 +245,17 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     newname[0] = '=';
 
     /* We try to make a hard link to lock the file.  If we fail, then
-     * somebody else has already locked it (a second atd?); log the
+     * somebody else has already locked or deleted it (a second atd?); log the
      * fact and return.
      */
     PRIV_START
     rc = link(filename, newname);
     PRIV_END
     if (rc == -1) {
-	if (errno == EEXIST) {
-	    free(mailname);
-	    free(newname);
-	    syslog(LOG_WARNING, "trying to execute job %.100s twice",filename);
-	    return;
-	} else {
-	    perr("Can't link execution file");
-	}
+	syslog(LOG_WARNING, "could not lock job %lu: %m", jobno);
+	free(mailname);
+	free(newname);
+	return;
     }
     /* If something goes wrong between here and the unlink() call,
      * the job gets restarted as soon as the "=" entry is cleared
