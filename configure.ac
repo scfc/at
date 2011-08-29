@@ -119,6 +119,13 @@ AC_ARG_WITH(etcdir,
 )
 AC_SUBST(ETCDIR)
 
+AC_ARG_WITH(systemdsystemunitdir,
+[  --with-systemdsystemunitdir=PATH Directory for systemd service files],
+[],
+[with_systemdsystemunitdir=no]
+)
+AC_SUBST(systemdsystemunitdir, [$with_systemdsystemunitdir])
+
 AC_MSG_CHECKING(location of pid file)
 if test -d /var/run ; then
     PIDDIR=/var/run

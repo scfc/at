@@ -1,0 +1,8 @@
+[Unit]
+Description=Deferred execution scheduler
+
+[Service]
+ExecStart=@sbindir@/atd -f
+
+[Install]
+WantedBy=multi-user.target
