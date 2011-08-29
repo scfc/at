@@ -5,15 +5,6 @@ confflags = --prefix=/usr --with-loadavg_mx=1.5 \
             --with-atspool=/var/spool/cron/atspool \
             SENDMAIL=/usr/sbin/sendmail
 
-export DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-export DEB_BUILD_GNU_TYPE ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-
-ifeq ($(DEB_BUILD_GNU_TYPE), $(DEB_HOST_GNU_TYPE))
-  confflags += --build $(DEB_HOST_GNU_TYPE)
-else
-  confflags += --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
-endif
-
 build: build-arch build-indep
 build-arch: build-stamp
 build-stamp:
@@ -22,9 +13,9 @@ build-stamp:
 	ln -sf /usr/share/misc/config.sub .
 	ln -sf /usr/share/misc/config.guess .
 
-	./configure $(confflags)
-	$(MAKE)
-	$(MAKE) test
+	dh_auto_configure -- $(confflags)
+	dh_auto_build
+	dh_auto_test
 	touch $@
 
 build-indep:
