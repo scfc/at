@@ -234,9 +234,9 @@ run_file(const char *filename, uid_t uid, gid_t gid)
     mailsize = LOGIN_NAME_MAX;
 #  endif
 #endif
+    sscanf(filename, "%c%5lx", &queue, &jobno);
     if ((mailname = malloc(mailsize+1)) == NULL)
 	pabort("Job %8lu : out of virtual memory", jobno);
-    sscanf(filename, "%c%5lx", &queue, &jobno);
 
     sprintf(jobbuf, "%8lu", jobno);
 
