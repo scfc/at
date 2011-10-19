@@ -67,7 +67,7 @@ binary-arch: build-stamp
 	dh_strip
 	dh_gencontrol
 	dh_md5sums
-	dh_builddeb
+	dh_builddeb -- -Zxz
 
 binary: binary-indep binary-arch
 
