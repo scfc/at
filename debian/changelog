@@ -1,3 +1,11 @@
+at (3.1.13-2) UNRELEASED; urgency=low
+
+  * Use debhelper compat level 9 (to enable hardening by default).
+  * debian/rules: Also enable pie and bindnow hardening features.
+  * Use XZ compression for binary packages.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Wed, 19 Oct 2011 09:31:23 +0200
+
 at (3.1.13-1) unstable; urgency=low
 
   * New upstream release:
