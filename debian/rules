@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+export DEB_BUILD_MAINT_OPTIONS="hardening=+pie,+bindnow"
+
 confflags = --prefix=/usr --with-loadavg_mx=1.5 \
             --with-jobdir=/var/spool/cron/atjobs \
             --with-atspool=/var/spool/cron/atspool \
