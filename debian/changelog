@@ -1,3 +1,10 @@
+at (3.1.12-1+squeeze1) squeeze; urgency=low
+
+  * Create hardlink as priviledged user. (Closes: #597130)
+    Patch backported from at/3.1.13.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Fri, 02 Mar 2012 18:36:16 +0100
+
 at (3.1.12-1) unstable; urgency=low
 
   * New upstream release:
