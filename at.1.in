@@ -6,6 +6,7 @@ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
 .RB [ -V ]
 .RB [ -q
 .IR queue ]
+.RB [ -jr ]
 .RB [ -f
 .IR file ]
 .RB [ -mMlv ]
@@ -254,6 +255,14 @@ Times displayed will be in the format "Thu Feb 20 14:50:00 1997".
 .B
 \-c
 cats the jobs listed on the command line to standard output.
+.TP
+.B
+\-j
+sorts the jobs listed by atq by job number (default: time).
+.TP
+.B
+\-R
+reverses the sort order used by atq (default: ascending).
 .SH FILES
 .I @ATJBD@
 .br

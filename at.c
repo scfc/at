@@ -134,7 +134,7 @@ static void sigc(int signo);
 static void alarmc(int signo);
 static char *cwdname(void);
 static void writefile(time_t runtimer, char queue);
-static void list_jobs(void);
+static void list_jobs(int sort_by_jobno, int sort_reversely);
 
 /* Signal catching functions */
 
@@ -563,8 +563,16 @@ writefile(time_t runtimer, char queue)
     return;
 }
 
+struct at_job_entry {
+    struct at_job_entry *next;
+    char queue;
+    uid_t uid;
+    long jobno;
+    unsigned long ctm;
+};
+
 static void
-list_jobs(void)
+list_jobs(int sort_by_jobno, int sort_reversely)
 {
     /* List all a user's jobs in the queue, by looping through ATJOB_DIR, 
      * or everybody's if we are root
@@ -572,13 +580,12 @@ list_jobs(void)
     DIR *spool;
     struct dirent *dirent;
     struct stat buf;
-    struct tm *runtime;
     unsigned long ctm;
     char queue;
     long jobno;
-    time_t runtimer;
     char timestr[TIMESIZE];
     struct passwd *pwd;
+    struct at_job_entry *job_list = NULL;
 
     PRIV_START
 
@@ -606,8 +613,30 @@ list_jobs(void)
 	if (atqueue && (queue != atqueue))
 	    continue;
 
-	runtimer = 60 * (time_t) ctm;
-	runtime = localtime(&runtimer);
+	/* Add to job list. */
+	struct at_job_entry **j = &job_list;
+	while (*j && (sort_by_jobno ? jobno > (*j)->jobno : ctm > (*j)->ctm) == !sort_reversely)
+	  j = &((*j)->next);
+
+	struct at_job_entry *next_in_line = *j;
+	*j = malloc (sizeof (**j));
+	if (!*j)
+	  panic ("Out of memory");
+	(*j)->next  = next_in_line;
+	(*j)->uid   = buf.st_uid;
+	(*j)->queue = queue;
+	(*j)->jobno = jobno;
+	(*j)->ctm   = ctm;
+    }
+    PRIV_END
+
+    /* Display job list. */
+    struct at_job_entry *a = job_list;
+    /* TODO: char *my_time_format = getenv ("POSIXLY_CORRECT") ? TIMEFORMAT_POSIX : TIMEFORMAT_ISO; */
+    while (a)
+      {
+	time_t runtimer = 60 * (time_t) ctm;
+	struct tm *runtime = localtime(&runtimer);
 
 	strftime(timestr, TIMESIZE, TIMEFORMAT_POSIX, runtime);
 
@@ -615,8 +644,7 @@ list_jobs(void)
 	  printf("%ld\t%s %c %s\n", jobno, timestr, queue, pwd->pw_name);
 	else
 	  printf("%ld\t%s %c\n", jobno, timestr, queue);
-    }
-    PRIV_END
+      }
 }
 
 static int
@@ -746,8 +774,10 @@ main(int argc, char **argv)
     char *pgm;
 
     int program = AT;		/* our default program */
-    char *options = "q:f:MmvlrdhVct:";	/* default options for at */
+    char *options = "q:f:jMmvlrdhVctR:";	/* default options for at */
     int disp_version = 0;
+    int sort_reversely = 0;
+    int sort_by_jobno = 0;
     time_t timer = 0;
     struct passwd *pwe;
     struct group *ge;
@@ -777,7 +807,7 @@ main(int argc, char **argv)
      */
     if (strcmp(pgm, "atq") == 0) {
 	program = ATQ;
-	options = "hq:V";
+	options = "hjq:RV";
     } else if (strcmp(pgm, "atrm") == 0) {
 	program = ATRM;
 	options = "hV";
@@ -832,7 +862,7 @@ main(int argc, char **argv)
 		usage();
 
 	    program = ATQ;
-	    options = "q:V";
+	    options = "jq:RV";
 	    break;
 
 	case 'b':
@@ -861,6 +891,18 @@ main(int argc, char **argv)
 	    timer -= timer % 60;
 	    break;
 
+	case 'j':
+	    if (program != ATQ)
+		usage();
+	    sort_by_jobno = 1;
+	    break;
+
+	case 'R':
+	    if (program != ATQ)
+		usage();
+	    sort_reversely = 1;
+	    break;
+
 	default:
 	    usage();
 	    break;
@@ -887,7 +929,7 @@ main(int argc, char **argv)
 
 	REDUCE_PRIV(daemon_uid, daemon_gid)
 
-	    list_jobs();
+	    list_jobs(sort_by_jobno, sort_reversely);
 	break;
 
     case ATRM:
