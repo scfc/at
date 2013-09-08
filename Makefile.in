@@ -124,6 +124,7 @@ install: all
 		$(IROOT)$(mandir)/cat1/atq.1*
 	rm -f $(IROOT)$(mandir)/cat1/atd.8*
 	if test x"$(systemdsystemunitdir)" != xno; then \
+		$(INSTALL) -o root -g root -m 755 -d $(IROOT)$(systemdsystemunitdir); \
 		$(INSTALL) -o root -g root -m 644 atd.service $(IROOT)$(systemdsystemunitdir); \
 	fi
 
