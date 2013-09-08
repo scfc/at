@@ -64,7 +64,7 @@ LIST = Filelist Filelist.asc
 
 .PHONY: all install clean dist distclean
 
-all: at atd atrun
+all: at atd atd.service atrun
 
 at: $(ATOBJECTS)
 	$(CC) $(LDFLAGS) -o at $(ATOBJECTS) $(LIBS) $(LEXLIB)
@@ -80,6 +80,9 @@ y.tab.c y.tab.h: parsetime.y
 
 lex.yy.c: parsetime.l
 	$(LEX) -i parsetime.l
+
+atd.service: atd.service.in
+	sed -e 's![@]sbindir[@]!$(sbindir)!g' < $< > $@
 
 atrun: atrun.in
 	configure
