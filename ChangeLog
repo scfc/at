@@ -136,3 +136,12 @@ at 3.1.13:
   Reuben Thomas (2):
         De-duplicate and improve documentation of /etc/at.{deny,allow}.
         Clarify an error message.
+
+at 3.1.14:
+
+  Ansgar Burchardt (5):
+        Add systemd service file.
+        Initialize jobno before using it.
+        No longer try to compile and run a trivial C program.
+        Add -M option to usage message.
+        Use LDFLAGS when linking programs.
