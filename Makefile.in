@@ -15,6 +15,7 @@ man8dir		= $(mandir)/man8
 docdir		= $(prefix)/doc
 atdocdir	= $(docdir)/at
 etcdir		= @ETCDIR@
+systemdsystemunitdir = @systemdsystemunitdir@
 
 DAEMON_USERNAME	= @DAEMON_USERNAME@
 DAEMON_GROUPNAME= @DAEMON_GROUPNAME@
@@ -55,6 +56,7 @@ DOCS =  Problems Copyright README ChangeLog timespec
 MISC =  COPYING  Makefile.in configure acconfig.h install-sh \
 	README atrun.in at.1.in atrun.8.in atd.8.in at.allow.5.in \
 	configure.in  config.h.in config.guess config.sub batch.in at.deny \
+	atd.service.in \
 	$(DOCS)
 
 DIST = $(CSRCS) $(HEADERS) $(MISC) $(OTHERS)
@@ -62,7 +64,7 @@ LIST = Filelist Filelist.asc
 
 .PHONY: all install clean dist distclean
 
-all: at atd atrun
+all: at atd atd.service atrun
 
 at: $(ATOBJECTS)
 	$(CC) $(LDFLAGS) -o at $(ATOBJECTS) $(LIBS) $(LEXLIB)
@@ -78,6 +80,9 @@ y.tab.c y.tab.h: parsetime.y
 
 lex.yy.c: parsetime.l
 	$(LEX) -i parsetime.l
+
+atd.service: atd.service.in
+	sed -e 's![@]sbindir[@]!$(sbindir)!g' < $< > $@
 
 atrun: atrun.in
 	configure
@@ -118,6 +123,10 @@ install: all
 	rm -f $(IROOT)$(mandir)/cat1/at.1* $(IROOT)$(mandir)/cat1/batch.1* \
 		$(IROOT)$(mandir)/cat1/atq.1*
 	rm -f $(IROOT)$(mandir)/cat1/atd.8*
+	if test x"$(systemdsystemunitdir)" != xno; then \
+		$(INSTALL) -o root -g root -m 755 -d $(IROOT)$(systemdsystemunitdir); \
+		$(INSTALL) -o root -g root -m 644 atd.service $(IROOT)$(systemdsystemunitdir); \
+	fi
 
 dist: checkin $(DIST) $(LIST) Filelist.asc
 	(cd ..; tar cf - `for a in $(DIST) $(LIST); do echo at-$(VERSION)/$$a; done` |\
@@ -134,7 +143,7 @@ clean:
 
 distclean: clean
 	rm -rf at.1 atd.8 atrun.8 config.cache atrun batch config.h \
-		config.status Makefile config.log build
+		config.status Makefile config.log build atd.service
 
 checkin: $(DIST)
 	test -d RCS && for a in $(DIST); do ci -l $$a ; done
