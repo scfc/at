@@ -5,6 +5,7 @@ export DEB_BUILD_MAINT_OPTIONS=hardening=+pie,+bindnow
 confflags = --prefix=/usr --with-loadavg_mx=1.5 \
             --with-jobdir=/var/spool/cron/atjobs \
             --with-atspool=/var/spool/cron/atspool \
+            --with-systemdsystemunitdir=/lib/systemd/system \
             SENDMAIL=/usr/sbin/sendmail
 
 build: build-arch build-indep
@@ -58,7 +59,9 @@ binary-arch: build-stamp
 	mv debian/at/etc/init.d/rc \
 		debian/at/etc/init.d/atd
 	chmod a+x debian/at/etc/init.d/atd
+	dh_systemd_enable
 	dh_installinit --name=atd --onlyscripts -- defaults 89 11
+	dh_systemd_start
 	# Needed to keep in line with the previous upload:
 	chown root:daemon debian/at/etc/at.deny
 	dh_compress
