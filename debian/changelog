@@ -1,3 +1,20 @@
+at (3.1.14-1) unstable; urgency=low
+
+  * New upstream release:
+    + No longer try to compile and run a trivial C program. (Closes: #632301)
+    + Add systemd service file. (Closes: #639634)
+
+  [ Prach Pongpanich ]
+  * Bump debhelper Build-Depends to 9.
+  * Bump Standards-Version to 3.9.4.
+  * debian/control: Use canonical URI in Vcs-* fields.
+  * Update copyright to format 1.0.
+
+  [ Ansgar Burchardt ]
+  * Install systemd service file.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Sun, 08 Sep 2013 14:52:08 +0200
+
 at (3.1.13-2) unstable; urgency=low
 
   * Use debhelper compat level 9 (to enable hardening by default).
