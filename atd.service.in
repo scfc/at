@@ -1,5 +1,6 @@
 [Unit]
 Description=Deferred execution scheduler
+Documentation=man:atd(8)
 
 [Service]
 ExecStart=@sbindir@/atd -f
