@@ -1,3 +1,11 @@
+at (3.1.15-1) unstable; urgency=medium
+
+  * New upstream release:
+    + pam.conf: require pam_loginuid.so (Closes: #677442)
+  * Bumped Standards-Version to 3.9.5 (no changes).
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Sun, 10 Aug 2014 14:03:16 +0200
+
 at (3.1.14-1) unstable; urgency=low
 
   * New upstream release:
