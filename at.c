@@ -390,6 +390,22 @@ writefile(time_t runtimer, char queue)
 	int export = 1;
 	char *eqp;
 
+        /* Only accept alphanumerics and underscore in variable names.
+         * Also require the name to not start with a digit.
+         * Some shells don't like other variable names.
+         */
+        {
+            char *p = *atenv;
+            if (isdigit(*p))
+                export = 0;
+            for (; *p != '=' && *p != '\0'; ++p) {
+                if (!isalnum(*p) && *p != '_') {
+                    export = 0;
+                    break;
+                }
+            }
+        }
+
 	eqp = strchr(*atenv, '=');
 	if (ap == NULL)
 	    eqp = *atenv;
