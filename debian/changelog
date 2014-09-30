@@ -1,3 +1,11 @@
+at (3.1.13-2+deb7u1) wheezy; urgency=medium
+
+  * at: Only retain variables whose name consists of alphanumerics and
+    underscores. This prevents jobs from failing in case bash exports
+    functions to the environment with the changes from DSA-3035.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Tue, 30 Sep 2014 20:58:23 +0200
+
 at (3.1.13-2) unstable; urgency=low
 
   * Use debhelper compat level 9 (to enable hardening by default).
