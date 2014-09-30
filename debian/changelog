@@ -1,3 +1,9 @@
+at (3.1.16-1) unstable; urgency=medium
+
+  * New upstream release.
+
+ -- Ansgar Burchardt <ansgar@debian.org>  Tue, 30 Sep 2014 08:33:05 +0200
+
 at (3.1.15-1) unstable; urgency=medium
 
   * New upstream release:
